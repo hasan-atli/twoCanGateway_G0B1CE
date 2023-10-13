@@ -1,6 +1,0 @@
-../Core/Src/24lc01Eeprom.c:17:6:EEPROM_Write	24	static
-../Core/Src/24lc01Eeprom.c:22:6:EEPROM_Read	24	static
-../Core/Src/24lc01Eeprom.c:27:6:EEPROM_PageErase	16	static
-../Core/Src/24lc01Eeprom.c:33:6:EEPROM_byte_write	40	static
-../Core/Src/24lc01Eeprom.c:53:9:EEPROM_byte_read	32	static
-../Core/Src/24lc01Eeprom.c:72:5:searchI2cDevice	32	static

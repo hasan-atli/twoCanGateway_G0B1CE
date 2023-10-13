@@ -1,6 +1,0 @@
-24lc01Eeprom.c:17:6:EEPROM_Write	1
-24lc01Eeprom.c:22:6:EEPROM_Read	1
-24lc01Eeprom.c:27:6:EEPROM_PageErase	1
-24lc01Eeprom.c:33:6:EEPROM_byte_write	2
-24lc01Eeprom.c:53:9:EEPROM_byte_read	3
-24lc01Eeprom.c:72:5:searchI2cDevice	3

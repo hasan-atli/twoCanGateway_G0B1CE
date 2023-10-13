@@ -1,4 +1,0 @@
-../Core/Src/debug.c:14:6:dbgPrintf	272	static
-../Core/Src/debug.c:25:6:dbgPrint	16	static
-../Core/Src/debug.c:30:6:dbgPrintByte	16	static
-../Core/Src/debug.c:35:6:dbgDumpHex	24	static

@@ -140,6 +140,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
+		Error_Handler();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -542,6 +543,23 @@ void Error_Handler(void)
 	__disable_irq();
 	while (1)
 	{
+		static long count = 0;
+		count++;
+		while (count == 1e5)
+		{
+			HAL_GPIO_TogglePin(LED_BLINK_GPIO_Port, LED_BLINK_Pin);
+			HAL_GPIO_TogglePin(LED_A_GPIO_Port, LED_A_Pin);
+			HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
+
+			count = 0;
+		}
+
+		static long count2 = 0;
+		count2++;
+		while (count2 == 1e6)
+		{
+			HAL_NVIC_SystemReset();
+		}
 	}
   /* USER CODE END Error_Handler_Debug */
 }

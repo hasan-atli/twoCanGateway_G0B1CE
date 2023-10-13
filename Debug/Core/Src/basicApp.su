@@ -1,7 +1,0 @@
-../Core/Src/basicApp.c:37:6:Init_Basic_App	8	static
-../Core/Src/basicApp.c:54:6:Init_CanA	8	static
-../Core/Src/basicApp.c:98:6:Init_CanB	16	static
-../Core/Src/basicApp.c:156:6:Init_Eeprom	8	static
-../Core/Src/basicApp.c:178:5:Get_Eeprom_Adr	8	static
-../Core/Src/basicApp.c:189:6:Read_All_Eeprom	8	static
-../Core/Src/basicApp.c:201:6:STM_CAN_Speed_Select	16	static
