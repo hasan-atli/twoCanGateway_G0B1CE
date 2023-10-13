@@ -1,0 +1,12 @@
+main.c:100:5:main	1
+main.c:156:6:SystemClock_Config	3
+main.c:204:13:MX_FDCAN1_Init	2
+main.c:247:13:MX_FDCAN2_Init	2
+main.c:290:13:MX_I2C1_Init	4
+main.c:338:13:MX_USART1_UART_Init	5
+main.c:386:13:MX_GPIO_Init	1
+main.c:436:6:isPressedBtn	5
+main.c:486:6:heartBeat	2
+main.c:498:6:HAL_FDCAN_RxFifo0Callback	3
+main.c:517:6:HAL_FDCAN_RxFifo1Callback	3
+main.c:538:6:Error_Handler	1
