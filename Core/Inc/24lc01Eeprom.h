@@ -31,28 +31,27 @@
  * Gui'de ilk yapılan ayarların eepromda saklanacagı adreslerdir.
  * UYARI: Daha sonra baska define eklenecekse sıra atlanmamılıdır ve NUM_OF_CONST_CAN_VALUE degeri güncellenmelidir.
  * bu degerler eeproma yazma okuma sırasında bazı fonksiyonlar tarafından kullanılmkatdır.
+ * program bouyunca "@Can_Eeprom_Values_t" basicApp.h de tanımlı tip bu degerleri saklarlar.
  *------------------------------------------------------*/
 #define NUM_OF_CONST_CAN_VALUE                       8
 
 #define ADDR_EMPTY 		     	                     0
 #define ADDR_OFFSET_CAN_SETTING_VALUE
 
-#define ADDR_IS_CAN_A_ENABLE                         1
-#define ADDR_CAN_A_FRAME_FORMAT                      2
-#define ADDR_CAN_A_NOMINAL_BITRATE                   3
-#define ADDR_CAN_A_DATA_BITRATE                      4
-#define ADDR_CAN_A_FILTER                            5
+#define ADDR_CAN_A_FRAME_FORMAT                      1
+#define ADDR_CAN_A_NOMINAL_BITRATE                   2
+#define ADDR_CAN_A_DATA_BITRATE                      3
+#define ADDR_CAN_A_FILTER                            4
 
 
-#define ADDR_IS_CAN_B_ENABLE                         6
-#define ADDR_CAN_B_FRAME_FORMAT                      7
-#define ADDR_CAN_B_NOMINAL_BITRATE                   8
-#define ADDR_CAN_B_DATA_BITRATE                      9
-#define ADDR_CAN_B_FILTER                            10
+#define ADDR_CAN_B_FRAME_FORMAT                      5
+#define ADDR_CAN_B_NOMINAL_BITRATE                   6
+#define ADDR_CAN_B_DATA_BITRATE                      7
+#define ADDR_CAN_B_FILTER                            8
 
 
-#define ADDR_CRC1_L                                  11
-#define ADDR_CRC1_H                                  12
+#define ADDR_CRC1_L                                  9
+#define ADDR_CRC1_H                                  10
 /*------------------------------------------------------*/
 
 

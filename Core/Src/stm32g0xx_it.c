@@ -148,7 +148,7 @@ void SysTick_Handler(void)
 void TIM16_FDCAN_IT0_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM16_FDCAN_IT0_IRQn 0 */
-  debugPrint("kesme line0\n");
+
   /* USER CODE END TIM16_FDCAN_IT0_IRQn 0 */
   HAL_FDCAN_IRQHandler(&hfdcan1);
   HAL_FDCAN_IRQHandler(&hfdcan2);
@@ -163,7 +163,7 @@ void TIM16_FDCAN_IT0_IRQHandler(void)
 void TIM17_FDCAN_IT1_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM17_FDCAN_IT1_IRQn 0 */
-  debugPrint("kesme line1\n");
+
   /* USER CODE END TIM17_FDCAN_IT1_IRQn 0 */
   HAL_FDCAN_IRQHandler(&hfdcan1);
   HAL_FDCAN_IRQHandler(&hfdcan2);

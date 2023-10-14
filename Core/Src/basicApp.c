@@ -27,6 +27,28 @@ extern FDCAN_HandleTypeDef hfdcan2;
 extern FDCAN_TxHeaderTypeDef bufTxHdr_B;
 /**********************************************************/
 
+/**
+ * can config ayarları
+ * eepromdan okuduktan sonra atamaları yapılır
+ * can config ayarlarını tutar, can1a ve canb init edilirken kullanılacaktır.
+ */
+/**********************************************************/
+Can_Eeprom_Values_t canA_Values = {FDCAN_CLASSIC_CAN, CAN_NOBPS, CAN_NOBPS};
+Can_Eeprom_Values_t canB_Values = {FDCAN_CLASSIC_CAN, CAN_NOBPS, CAN_NOBPS};
+/**********************************************************/
+
+
+/**
+ * ÖNEMLİ NOT:
+ * routeOne canA -> canB  yönünü temsil etmektedir.
+ *
+ * routeTwo canB -> canA  yönünü temsil etmektedir.
+ */
+/**********************************************************/
+Can_Route_Values_t routeOne;
+Can_Route_Values_t routeTwo;
+/**********************************************************/
+
 
 /**********************************************************/
 //  Name        : Init_Basic_App
@@ -43,6 +65,10 @@ void Init_Basic_App()
 	Init_CanA();
 
 	Init_CanB();
+
+	canMsgRingBufferInit(&routeOne.Route_Ring_Buf, routeOne.Can_Msg_Queue, MAX_BUFFER_DEPTH);
+
+	canMsgRingBufferInit(&routeTwo.Route_Ring_Buf, routeTwo.Can_Msg_Queue, MAX_BUFFER_DEPTH);
 }
 
 /**********************************************************/

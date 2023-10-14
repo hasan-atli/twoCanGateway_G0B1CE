@@ -61,9 +61,21 @@ typedef enum
 	_MASK_
 }Can_Id_Modes_For_Change_t;
 
+/**
+ * CAN config ayarları icin eepromdan okunduktan sonra tutmak icin degisken tanımı
+ */
+typedef struct
+{
+	uint32_t FDFormat;                 /*!< Specifies whether the Tx frame will be transmitted in classic or FD format.
+								           This parameter can be a value of @ref FDCAN_format*/
+	BITTIME_SETUP can_nominal_bitrate;
+
+	BITTIME_SETUP can_data_bitrate;
+
+}Can_Eeprom_Values_t;
 
 /**
- *
+ * @Can_Route_Values_t
  */
 typedef struct
 {

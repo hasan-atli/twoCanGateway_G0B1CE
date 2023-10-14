@@ -52,27 +52,44 @@ UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 
-/*****************************************************************************************************************************************/
+/***************************************************************************************************/
 // for led blink
 uint32_t period_of_led_blink = _1_SECOND;
 uint32_t last_time = 0;
-/*****************************************************************************************************************************************/
+/***************************************************************************************************/
 
-/*****************************************************************************************************************************************/
+
+
+/***************************************************************************************************/
 // for CanA comm
 FDCAN_TxHeaderTypeDef bufTxHdr_A;
 FDCAN_RxHeaderTypeDef bufRxHdr_A;
-uint8_t payloadRx_A[64];
+uint8_t bufRx_A[64];
 
 // for CanB comm
 FDCAN_TxHeaderTypeDef bufTxHdr_B;
 FDCAN_RxHeaderTypeDef bufRxHdr_B;
-uint8_t payloadRx_B[64];
-/*****************************************************************************************************************************************/
+uint8_t bufRx_B[64];
+/***************************************************************************************************/
 
-/*****************************************************************************************************************************************/
-uint8_t testTxData[8] = { 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8 };
-/*****************************************************************************************************************************************/
+
+
+/***************************************************************************************************/
+extern Can_Route_Values_t routeOne;
+extern Can_Route_Values_t routeTwo;
+/***************************************************************************************************/
+
+
+
+/***************************************************************************************************/
+torkCanMsg tempCanMsg_A;    //canA Rx den alınan mesajları Ringbuffera atmak icin kullanılır
+torkCanMsg tempCanMsg_B;    //canB Rx den alınan mesajları Ringbuffera atmak icin kullanılır
+
+torkCanMsg canMsg;
+
+uint8_t result_One = 0;
+uint8_t result_Two = 0;
+/***************************************************************************************************/
 
 /* USER CODE END PV */
 
@@ -127,12 +144,12 @@ int main(void)
   MX_FDCAN2_Init();
   MX_USB_Device_Init();
   /* USER CODE BEGIN 2 */
-	/*****************************************************************************************************************************************/
+  /***************************************************************************************************/
 	debugPrint("/* USER CODE BEGIN 2 */\n");
 	Init_Basic_App();
 
 	debugPrint("/* USER CODE  END  2 */\n");
-	/*****************************************************************************************************************************************/
+  /***************************************************************************************************/
 
   /* USER CODE END 2 */
 
@@ -140,7 +157,61 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		Error_Handler();
+
+     /**
+     * rota1
+     * yön canA -> canB
+     ****************************************************************************************************/
+		result_One = canMsgRingBufferPop(&routeOne.Route_Ring_Buf ,&canMsg);
+
+		while(result_One == CAN_OK)
+		{
+			debugPrint("TX, route1-> canB->\n");
+
+			//... gönderilmeden mesjlar değişim geçirme fonk. eklenecek
+
+			bufTxHdr_B.Identifier          = canMsg.Identifier;
+			bufTxHdr_B.IdType              = canMsg.IdType;
+			bufTxHdr_B.TxFrameType         = canMsg.FrameType;
+			bufTxHdr_B.DataLength          = canMsg.DataLength;
+			bufTxHdr_B.FDFormat            = canMsg.FDFormat;
+			bufTxHdr_B.BitRateSwitch       = canMsg.BitRateSwitch;
+			bufTxHdr_B.ErrorStateIndicator = canMsg.ErrorStateIndicator;
+
+			HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan2, &bufTxHdr_B, canMsg.Payload);  //canB den gönder
+
+			result_One = canMsgRingBufferPop(&routeOne.Route_Ring_Buf ,&canMsg);
+		}
+
+     /***************************************************************************************************/
+
+
+     /**
+     * rota2
+     * yön canB -> canA
+     ****************************************************************************************************/
+		result_Two = canMsgRingBufferPop(&routeTwo.Route_Ring_Buf ,&canMsg);
+
+		while(result_Two == CAN_OK)
+		{
+			debugPrint("TX, route2-> canA-> \n");
+			//... gönderilmeden mesjlar değişim geçirme fonk. eklenecek
+
+			bufTxHdr_B.Identifier          = canMsg.Identifier;
+			bufTxHdr_B.IdType              = canMsg.IdType;
+			bufTxHdr_B.TxFrameType         = canMsg.FrameType;
+			bufTxHdr_B.DataLength          = canMsg.DataLength;
+			bufTxHdr_B.FDFormat            = canMsg.FDFormat;
+			bufTxHdr_B.BitRateSwitch       = canMsg.BitRateSwitch;
+			bufTxHdr_B.ErrorStateIndicator = canMsg.ErrorStateIndicator;
+
+			HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &bufTxHdr_B, canMsg.Payload);  //canA den gönder
+
+			result_Two = canMsgRingBufferPop(&routeTwo.Route_Ring_Buf ,&canMsg);
+		}
+     /***************************************************************************************************/
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -449,21 +520,6 @@ void isPressedBtn()
 			//***********************************
 			debugPrint("btn\n");
 
-			  // polling rx can
-			  while(HAL_FDCAN_GetRxMessage(&hfdcan1, FDCAN_RX_FIFO0, &bufRxHdr_A, payloadRx_A) == HAL_OK)  /* Retrieve message from Rx buffer 0 */
-			  {
-				  dbgPrint("hfdcan1\n");
-				  dbgPrint("new RxData:"); dbgDumpHex(payloadRx_A, 8); dbgPrint("\n");
-				  dbgPrintf("RxHeader.Identifier: %x\n", bufRxHdr_A.Identifier);
-			  }
-
-			  // polling rx can
-			  while(HAL_FDCAN_GetRxMessage(&hfdcan2, FDCAN_RX_FIFO0, &bufRxHdr_B, payloadRx_B) == HAL_OK)  /* Retrieve message from Rx buffer 1 */
-			  {
-				  dbgPrint("hfdcan2\n");
-				  dbgPrint("new RxData:"); dbgDumpHex(payloadRx_B, 8); dbgPrint("\n");
-				  dbgPrintf("RxHeader.Identifier: %x\n", bufRxHdr_B.Identifier);
-			  }
 
 			//***********************************
 
@@ -500,35 +556,59 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
 	if ((RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE) != RESET)
 	{
-		if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &bufRxHdr_A, payloadRx_A) != HAL_OK)
+		if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &bufRxHdr_A, tempCanMsg_A.Payload) == HAL_OK)
 		{
-			dbgPrint("ERROR: Fifo0Callback HAL_FDCAN_GetRxMessage\n");
-			Error_Handler();
-		}
-	}
+			//dbgPrint("canA new RxFifo0 :"); dbgDumpHex(payloadRx_A, 8); dbgPrint("\n");
+			//dbgPrintf("RxHeader.Identifier: %x\n", bufRxHdr_A.Identifier);
 
-	dbgPrint("canA new RxFifo0 :"); dbgDumpHex(payloadRx_A, 8); dbgPrint("\n");
-	dbgPrintf("RxHeader.Identifier: %x\n", bufRxHdr_A.Identifier);
+			HAL_GPIO_WritePin(LED_A_GPIO_Port, LED_A_Pin,GPIO_PIN_SET);    //veri aldıgında ısıgı söndür
+
+			tempCanMsg_A.Identifier          = bufRxHdr_A.Identifier;
+			tempCanMsg_A.IdType              = bufRxHdr_A.IdType;
+			tempCanMsg_A.FrameType           = bufRxHdr_A.RxFrameType;
+			tempCanMsg_A.DataLength          = bufRxHdr_A.DataLength;
+			tempCanMsg_A.FDFormat            = bufRxHdr_A.FDFormat;
+		    tempCanMsg_A.ErrorStateIndicator = bufRxHdr_A.ErrorStateIndicator;
+			tempCanMsg_A.BitRateSwitch       = bufRxHdr_A.BitRateSwitch;
+
+			canMsgRingBufferPush(&routeOne.Route_Ring_Buf, tempCanMsg_A);
+
+			debugPrint("RX ->canA  ->route1\n");
+		}
+		//dbgPrint("ERROR: Fifo0Callback HAL_FDCAN_GetRxMessage\n");
+		//Error_Handler();
+	}
 }
 
-
 /**
- *  CAN_A 'a gelen mesajlarda hfdcan2'ın FIFO1'ına konur  line1 kesmesi devreye girer
+ *  CAN_B 'a gelen mesajlarda hfdcan2'ın FIFO1'ına konur  line1 kesmesi devreye girer
  */
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 {
 	if ((RxFifo1ITs & FDCAN_IT_RX_FIFO1_NEW_MESSAGE) != RESET)
 	{
-		if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &bufRxHdr_B, payloadRx_B) != HAL_OK)
+		if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &bufRxHdr_B, tempCanMsg_B.Payload) == HAL_OK)
 		{
-			dbgPrint("ERROR:Fifo1Callback HAL_FDCAN_GetRxMessage\n");
-			Error_Handler();
+			//dbgPrint("canB new RxFifo1 :"); dbgDumpHex(tempCanMsg_B.Payload, 8); dbgPrint("\n");
+			//dbgPrintf("RxHeader.Identifier: %x\n", bufRxHdr_B.Identifier);
+
+			HAL_GPIO_WritePin(LED_A_GPIO_Port, LED_A_Pin,GPIO_PIN_SET);    //veri aldıgında ısıgı söndür
+
+			tempCanMsg_B.Identifier          = bufRxHdr_B.Identifier;
+			tempCanMsg_B.IdType              = bufRxHdr_B.IdType;
+			tempCanMsg_B.FrameType           = bufRxHdr_B.RxFrameType;
+			tempCanMsg_B.DataLength          = bufRxHdr_B.DataLength;
+			tempCanMsg_B.FDFormat            = bufRxHdr_B.FDFormat;
+			tempCanMsg_B.ErrorStateIndicator = bufRxHdr_B.ErrorStateIndicator;
+			tempCanMsg_B.BitRateSwitch       = bufRxHdr_B.BitRateSwitch;
+
+			canMsgRingBufferPush(&routeTwo.Route_Ring_Buf, tempCanMsg_B);
+
+			debugPrint("RX, ->canB  ->route2\n");
 		}
+		//dbgPrint("ERROR: Fifo0Callback HAL_FDCAN_GetRxMessage\n");
+		//Error_Handler();
 	}
-
-
-	dbgPrint("canB new RxFifo1 :"); dbgDumpHex(payloadRx_B, 8); dbgPrint("\n");
-	dbgPrintf("RxHeader.Identifier: %x\n", bufRxHdr_B.Identifier);
 }
 /* USER CODE END 4 */
 

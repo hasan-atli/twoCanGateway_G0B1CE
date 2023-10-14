@@ -5,42 +5,58 @@
  *      Author: PC
  */
 
+#include "stdint.h"
+
 #ifndef INC_CANMSG_H_
 #define INC_CANMSG_H_
 
-#define MAX_CAN_MSG_DATA_COUNT          8
+#define MAX_CAN_MSG_DATA_COUNT          64
 #define CAN_MSG_DATA_SENDER_ADDR_INDEX  0
 #define CAN_MSG_DATA_TIMESTAMP_INDEX    2
-//
-///*********ECR******************************************/
-//#define ECR_PROTOCOL_MSG                                     0xC0
-//#define ECR_PROTOCOL_MSG_START                               ECR_PROTOCOL_MSG
-//#define ECR_PROTOCOL_SIGNAL_CLIENTS_MSG                      ECR_PROTOCOL_MSG + 1
-//#define ECR_PROTOCOL_SIGNAL_MASTER_MSG                       ECR_PROTOCOL_MSG + 2
-//#define ECR_PROTOCOL_MSG_END                                 ECR_PROTOCOL_SIGNAL_MASTER_MSG
-//
-///***************/
-//
-//#define ECR_APPLICATION_MSG                                  0xB0
-//#define ECR_CHANGE_NOTIFICATON_MSG_ID                        ECR_APPLICATION_MSG + 1
-//#define ECR_PUMP_START_STOP_NOTIFICATON_MSG_ID               ECR_APPLICATION_MSG + 2
-//#define ECR_TRANSMIT_DEV_INFO_MSG_ID                         ECR_APPLICATION_MSG + 3
-//#define ECR_EMERGENCY_CONDITION_MSG_ID                       ECR_APPLICATION_MSG + 4
-//#define ECR_INPUT_STATES_MSG_ID                              ECR_APPLICATION_MSG + 6 //INPUT_MESSAGE_UPDTE_31/05/2021 (not bilge abinin attıgı kodda 5 yazıyordu ama kullanıldıgı icin 6 oldu)
-//#define ECR_EMERGENCY_ACK_MSG_ID                             ECR_APPLICATION_MSG + 5
-//
-//#define ECR_MASTER_BUZZER_SILENCE_MSG_ID                     ECR_APPLICATION_MSG + 7 //BUZZER SILENCE MSG MODE SUPPORT
-//#define ECR_MASTER_BUZZER_SILENCE_REQ_MSG_ID                 ECR_APPLICATION_MSG + 8 //BUZZER SILENCE MSG MODE SUPPORT
-///*********ECR******************************************/
+
+#define CAN_OK              (0)
+#define CAN_FAILINIT        (1)
+#define CAN_FAILTX          (2)
+#define CAN_MSGAVAIL        (3)
+#define CAN_NOMSG           (4)
+#define CAN_CTRLERROR       (5)
+#define CAN_GETTXBFTIMEOUT  (6)
+#define CAN_SENDMSGTIMEOUT  (7)
+#define CAN_FAIL            (0xff)
+
 
 
 typedef struct CanMsg__Struct
 {
-  unsigned long  canMsgId;
-  unsigned char  ext;
-  unsigned char  rtr;
-  unsigned char  len;
-  unsigned char  dataBuf[MAX_CAN_MSG_DATA_COUNT];
+	uint32_t Identifier;          /*!< Specifies the identifier.
+                                     This parameter must be a number between:
+                                      - 0 and 0x7FF, if IdType is FDCAN_STANDARD_ID
+                                      - 0 and 0x1FFFFFFF, if IdType is FDCAN_EXTENDED_ID                  */
+
+	uint32_t IdType;              /*!< Specifies the identifier type for the message that will be
+                                       transmitted.
+                                       This parameter can be a value of @ref FDCAN_id_type                */
+
+	uint32_t FrameType;           /*!< Specifies the frame type of the message that will be transmitted.
+                                     This parameter can be a value of @ref FDCAN_frame_type               */
+
+	uint32_t FDFormat;            /*!< Specifies whether the Tx frame will be transmitted in classic or
+		                               FD format.
+		                               if FDFormat is classic, ErrorStateIndicator and BitRateSwitch is insignificant.
+		                               This parameter can be a value of @ref FDCAN_format                 */
+
+	uint32_t ErrorStateIndicator; /*!< Specifies the error state indicator.
+                                       This parameter can be a value of @ref FDCAN_error_state_indicator  */
+
+	uint32_t BitRateSwitch;       /*!< Specifies whether the Tx frame will be transmitted with or without
+	                                   bit rate switching.
+	                                   This parameter can be a value of @ref FDCAN_bit_rate_switching     */
+
+	uint32_t DataLength;          /*!< Specifies the length of the frame that will be transmitted.
+	                                        This parameter can be a value of @ref FDCAN_data_length_code  */
+
+
+	uint8_t Payload[MAX_CAN_MSG_DATA_COUNT];
 }torkCanMsg;
 
 #endif /* INC_CANMSG_H_ */
