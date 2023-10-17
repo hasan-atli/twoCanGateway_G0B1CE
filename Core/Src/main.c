@@ -59,6 +59,13 @@ uint32_t last_time = 0;
 /***************************************************************************************************/
 
 
+/***************************************************************************************************/
+// for Uart Rx Irq
+char    uartRxData[64];		                     //Receive Data Buffer
+uint8_t uartRxIntData[64];	                     //Receive Data Interrupt Buffer (temp)
+volatile bool isDataReceived = false;		 //Callback tamamlandi mi?, kontrol flag
+/***************************************************************************************************/
+
 
 /***************************************************************************************************/
 // for CanA comm
@@ -103,11 +110,12 @@ static void MX_FDCAN2_Init(void);
 /* USER CODE BEGIN PFP */
 void isPressedBtn();
 void heartBeat();
+void isDataReceivedFromUart();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint8_t *data = "tork robotik\n";
 /* USER CODE END 0 */
 
 /**
@@ -148,6 +156,8 @@ int main(void)
 	debugPrint("/* USER CODE BEGIN 2 */\n");
 	Init_Basic_App();
 
+	HAL_UARTEx_ReceiveToIdle_IT(&huart1, uartRxIntData, sizeof(uartRxIntData));   //...test icin
+
 	debugPrint("/* USER CODE  END  2 */\n");
   /***************************************************************************************************/
 
@@ -157,7 +167,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
-
      /**
      * rota1
      * yön canA -> canB
@@ -217,6 +226,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 		isPressedBtn();
 		heartBeat();
+		isDataReceivedFromUart();
 	}
   /* USER CODE END 3 */
 }
@@ -609,6 +619,55 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 		//dbgPrint("ERROR: Fifo0Callback HAL_FDCAN_GetRxMessage\n");
 		//Error_Handler();
 	}
+}
+
+
+
+/***********************************************************
+ *  Name        :HAL_UARTEx_RxEventCallback
+ *  Parameters  :@huart, UART_HandleTypeDef
+ *  				@Size,	Buffer receive size
+ *  Returns     :@void Interrupt Callback fonksiyonu.
+ *  Function    :HAL_UARTEx_ReceiveToIdle_IT sayesinde ToIdle_IT fonksiyonu sayesinde bilinmeyen RxData
+ *  				frame leri uzerinden data aktarimi yapilabilmektedir.
+ *--------------------------------------------------------*/
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+	HAL_UARTEx_ReceiveToIdle_IT(&huart1, uartRxIntData, sizeof(uartRxIntData));   //interrupt kurulumu
+
+	memcpy(uartRxData, uartRxIntData, sizeof(uartRxData));			   //RxIntData -> RxData kopyalanmasini sagliyor
+
+	memset(uartRxIntData, 0, sizeof(uartRxIntData));
+
+	//memset(TxData,0,TX_DATA_SIZE);				     	   //memset ile TxData ve RxData sifirlanmasini sagliyor
+
+	isDataReceived = true;								   //Data geldi comm. basarili flag aktif hale geldi
+}
+
+/**
+ * test icin olusturuldu
+ */
+void isDataReceivedFromUart()
+{
+	if(isDataReceived)
+	{
+		isDataReceived = 0;
+
+		if (!strncmp("classic_can", uartRxData, 3))
+		{
+			debugPrint("classic_can mesaji gonderiliyor...");
+		}
+		else if(!strncmp("_canfd", uartRxData, 6))
+		{
+			debugPrint("_canfd mesaji gonderiliyor...");
+		}
+		else if(!strncmp("canfd_brs", uartRxData, 9))
+		{
+			debugPrint("canfd_brs mesaji gonderiliyor...");
+		}
+
+		memset(uartRxData,0,sizeof(uartRxData));
+	  }
 }
 /* USER CODE END 4 */
 
