@@ -25,6 +25,8 @@
 #include "debug.h"
 #include "basicApp.h"
 #include "24lc01Eeprom.h"
+
+#include <stdBool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -84,6 +86,9 @@ uint8_t bufRx_B[64];
 /***************************************************************************************************/
 extern Can_Route_Values_t routeOne;
 extern Can_Route_Values_t routeTwo;
+//... for test delete later
+extern Can_Eeprom_Values_t canA_Values;
+extern Can_Eeprom_Values_t canB_Values;
 /***************************************************************************************************/
 
 
@@ -110,7 +115,7 @@ static void MX_FDCAN2_Init(void);
 /* USER CODE BEGIN PFP */
 void isPressedBtn();
 void heartBeat();
-void isDataReceivedFromUart();
+void handleReceivedDataFromUart();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -221,12 +226,22 @@ int main(void)
      /***************************************************************************************************/
 
 
+	 /**
+	  * USB communicaiton
+	  */
+	 /***************************************************************************************************/
+		Handle_USB_Messages();
+	 /***************************************************************************************************/
+
+
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 		isPressedBtn();
 		heartBeat();
-		isDataReceivedFromUart();
+		handleReceivedDataFromUart();
 	}
   /* USER CODE END 3 */
 }
@@ -530,6 +545,7 @@ void isPressedBtn()
 			//***********************************
 			debugPrint("btn\n");
 
+			Read_All_Eeprom();
 
 			//***********************************
 
@@ -647,12 +663,13 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 /**
  * test icin olusturuldu
  */
-void isDataReceivedFromUart()
+void handleReceivedDataFromUart()
 {
 	if(isDataReceived)
 	{
 		isDataReceived = 0;
 
+/*******************************************************************************************/
 		if (!strncmp("classic_can", uartRxData, 3))
 		{
 			debugPrint("classic_can mesaji gonderiliyor...");
@@ -665,7 +682,65 @@ void isDataReceivedFromUart()
 		{
 			debugPrint("canfd_brs mesaji gonderiliyor...");
 		}
+		else if(!strncmp("CRC,", uartRxData, 4))
+		{
+			debugPrint("RxData:");
+			debugDumpHex((uint8_t*)uartRxData, 64);
 
+			debugPrintf("crc hesaplanıyor...\n");
+			uint8_t incomingData[32];
+
+			Parse_Data_From_USB_Buffer(incomingData, uartRxData, 64);
+
+			int sizeOfBuf =  incomingData[0];
+			uint8_t data[sizeOfBuf];
+
+			for(int i = 0; i < sizeOfBuf; i++)
+			{
+				data[i] = incomingData[i+1];
+			}
+
+			debugPrintf("crc si hesaplanacak buffer size: %d \n", sizeof(data));
+			debugPrintf("crc si hesaplanacak buffer daki veriler:  ");
+			debugDumpHex(data, sizeOfBuf);
+
+			torkUInt16_VAL _CRC_;
+			_CRC_.Val = Calculate_Crc(data, sizeOfBuf);
+
+			debugPrintf("crc L: %d\n", _CRC_.Byte[0]);
+			debugPrintf("crc H: %d\n", _CRC_.Byte[1]);
+		}
+		else if (!strncmp("test1,", uartRxData, 5))
+		{
+			//can config set
+			debugPrintf("canA_Values.FDFormat: %d\n",             canA_Values.FDFormat);
+			debugPrintf("canA_Values.can_nominal_bitratet: %d\n", canA_Values.can_nominal_bitrate);
+			debugPrintf("canA_Values.can_data_bitrate: %d\n",     canA_Values.can_data_bitrate);
+
+			debugPrintf("canB_Values.FDFormat: %d\n",             canB_Values.FDFormat);
+			debugPrintf("canB_Values.can_nominal_bitrate: %d\n",  canB_Values.can_nominal_bitrate);
+			debugPrintf("canB_Values.can_data_bitrate: %d\n",     canB_Values.can_data_bitrate);
+
+
+			//route 1
+			debugPrintf("routeOne.Is_Route_Enable: %d\n", routeOne.Is_Route_Enable);
+			debugPrintf("routeOne.Can_A_ext_flg: %d\n", routeOne.Can_A_ext_flg);
+			debugPrintf("routeOne.Can_A_id_mode: %d\n", routeOne.Can_A_id_mode);
+
+			debugPrintf("routeOne.Can_B_ext_flg: %d\n", routeOne.Can_B_ext_flg);
+			debugPrintf("routeOne.Can_B_id_mode: %d\n", routeOne.Can_B_id_mode);
+
+			//route 2
+			debugPrintf("routeTwo.Is_Route_Enable: %d\n", routeTwo.Is_Route_Enable);
+			debugPrintf("routeTwo.Can_A_state: %d\n", routeTwo.Can_A_ext_flg);
+			debugPrintf("routeTwo.Can_A_state: %d\n", routeTwo.Can_A_id_mode);
+
+			debugPrintf("routeTwo.Can_B_ext_flg: %d\n", routeTwo.Can_B_ext_flg);
+			debugPrintf("routeTwo.Can_B_id_mode: %d\n", routeTwo.Can_B_id_mode);
+
+		}
+
+/*******************************************************************************************/
 		memset(uartRxData,0,sizeof(uartRxData));
 	  }
 }

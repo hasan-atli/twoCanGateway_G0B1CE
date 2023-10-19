@@ -26,17 +26,22 @@
 
 
 /**-----------------------------------------------------
+ * Section CAN_VALUE
  * Kurulum 'init' sırasında yapılan ayarlardır.
 
  * Gui'de ilk yapılan ayarların eepromda saklanacagı adreslerdir.
- * UYARI: Daha sonra baska define eklenecekse sıra atlanmamılıdır ve NUM_OF_CONST_CAN_VALUE degeri güncellenmelidir.
+ *
+ * !!!  UYARI: Daha sonra baska define eklenecekse sıra atlanmamılıdır ve NUM_OF_CONST_CAN_VALUE degeri güncellenmelidir.
  * bu degerler eeproma yazma okuma sırasında bazı fonksiyonlar tarafından kullanılmkatdır.
- * program bouyunca "@Can_Eeprom_Values_t" basicApp.h de tanımlı tip bu degerleri saklarlar.
+ * program bouyunca "@Can_Eeprom_Values_t" basicApp.h de tanımlı tip bu degerleri saklarlar.Can_Eeprom_Values_t tipide güncellenmelidir.
+ * Ayrıca yeni eklenen degisken olursa "Read_All_Eeprom()" da güncellenmelidir.
+ * Parse_Msg_From_USB_and_Write_Data_To_EEPROM(), Read_A_Section_of_Eeprom(), Write_Route_Value_EEPROM() güncellenme gerektirmez.
+ *
  *------------------------------------------------------*/
 #define NUM_OF_CONST_CAN_VALUE                       8
 
 #define ADDR_EMPTY 		     	                     0
-#define ADDR_OFFSET_CAN_SETTING_VALUE
+#define ADDR_OFFSET_CAN_SETTING_VALUE                0
 
 #define ADDR_CAN_A_FRAME_FORMAT                      1
 #define ADDR_CAN_A_NOMINAL_BITRATE                   2
@@ -56,14 +61,16 @@
 
 
 /**-----------------------------------------------------
+ * Section ROUTE_ONE
  * Route 1 ayarları
  *
  *route 1 'ın yönü A->B ayarları yapılacaktır
  *
  *UYARI: Daha sonra baska define eklenecekse sıra atlanmamılıdır ve NUM_OF_CONST_CAN_VALUE degeri güncellenmelidir.
  * bu degerler eeproma yazma okuma sırasında bazı fonksiyonlar tarafından kullanılmkatdır.
+ * Bu fonk. Read_All_Eeprom(), Parse_Msg_From_USB_and_Write_Data_To_EEPROM(), Read_A_Section_of_Eeprom(), Write_Route_Value_EEPROM() güncellenme gerektirmez.
  *------------------------------------------------------*/
-#define NUM_OF_CONST_ROUTE_VALUE
+#define NUM_OF_CONST_ROUTE_ONE_VALUE                    5
 
 #define ADDR_OFFSET_ROUTE_ONE                           50
 
@@ -80,11 +87,15 @@
 
 
 /**-----------------------------------------------------
+ *  Section ROUTE_TWO
  *  Route 2 ayarları
  *
  *UYARI: Daha sonra baska define eklenecekse sıra atlanmamılıdır ve NUM_OF_CONST_CAN_VALUE degeri güncellenmelidir.
  * bu degerler eeproma yazma okuma sırasında bazı fonksiyonlar tarafından kullanılmkatdır.
+ * Bu fonk. Read_All_Eeprom(), Parse_Msg_From_USB_and_Write_Data_To_EEPROM(), Read_A_Section_of_Eeprom(), Write_Route_Value_EEPROM() güncellenme gerektirmez.
  *------------------------------------------------------*/
+#define NUM_OF_CONST_ROUTE_TWO_VALUE                   5
+
 #define ADDR_OFFSET_ROUTE_TWO                          80
 
 #define ADDR_ROUTE_TWO_ENABLE                          ADDR_OFFSET_ROUTE_TWO + 1

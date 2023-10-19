@@ -22,7 +22,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "stdbool.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +31,8 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+extern uint8_t rxBufferUSB[64];
+extern bool    isReceivedUSB;
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -263,6 +264,16 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   /* USER CODE BEGIN 6 */
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+
+  /*****************************************************************/
+  memset (rxBufferUSB, '\0', 64);  // clear the buffer
+  uint8_t len = (uint8_t)*Len;
+  memcpy(rxBufferUSB, Buf, len);  // copy the data to the buffer
+  memset(Buf, '\0', len);   // clear the Buf also
+
+  isReceivedUSB = true;
+  /*****************************************************************/
+
   return (USBD_OK);
   /* USER CODE END 6 */
 }

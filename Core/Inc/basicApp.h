@@ -66,7 +66,7 @@ typedef enum
  */
 typedef struct
 {
-	uint32_t FDFormat;                 /*!< Specifies whether the Tx frame will be transmitted in classic or FD format.
+	uint8_t FDFormat;                 /*!< Specifies whether the Tx frame will be transmitted in classic or FD format.
 								           This parameter can be a value of @ref FDCAN_format*/
 	BITTIME_SETUP can_nominal_bitrate;
 
@@ -76,13 +76,24 @@ typedef struct
 
 /**
  * @Can_Route_Values_t
+ *
+ * Eepromda veriler okunduktan sonra kodun çalışması esnasında rote ayarları Can_Route_Values_t tipinde saklanır.
+ *
+ *
+ * *ÖNEMLi NOT!!!
+ * Can_Route_Values_t tipine yeni değişken eklenecekse ve bu değişken eepromdan kayıtlı olacaksa "VARIABLES" ile belirtilen alana koyulmalıdır.
+ * "VARIABLES" alanına koyulan  verilerin sırlaması önemlidir. Bu sıralama "24lc01Eeprom.h" kütüphanesindeki route ayarları ile aynı sırada olmalıdır.
+ *  Ayrıca yeni eklenecek değişken uint8_t veya char tipinden başka tip kullanılamaz.
+ *	Eepromdan veriler okunurken bu sıralama ile veriler atanmaktadır.
+ *  Yeni degisken eklernirken sadece Can_Route_Values_t degisken tanımı yapılıp eepromda "24lc01Eeprom.h" 'a adresi eklenmesi yeterlidir.
+ *
  */
 typedef struct
 {
-	bool Is_Route_Enable;
-
-	torkCanMsgRingBuf_t Route_Ring_Buf;
-	torkCanMsg Can_Msg_Queue[MAX_BUFFER_DEPTH]; // to store can msg arrays for ring buffers
+	/*****************************************************************/
+	/*  VARIABLES CODE BEGIN */
+	/*****************************************************************/
+	uint8_t Is_Route_Enable;
 
 	// can route'da output oldugunda nasıl veri gönderilecegini belirler
 	Can_Ext_For_Output_Flg_t Can_A_ext_flg;
@@ -90,6 +101,13 @@ typedef struct
 
 	Can_Ext_For_Output_Flg_t Can_B_ext_flg;
 	Can_Id_Modes_For_Change_t Can_B_id_mode;
+	/*****************************************************************/
+	/* VARIABLES CODE BEGIN */
+	/*****************************************************************/
+
+
+	torkCanMsgRingBuf_t Route_Ring_Buf;
+	torkCanMsg Can_Msg_Queue[MAX_BUFFER_DEPTH]; // to store can msg arrays for ring buffers
 
 }Can_Route_Values_t;
 
@@ -101,7 +119,17 @@ void Init_CanB();
 void Init_Eeprom();
 int Get_Eeprom_Adr();
 void Read_All_Eeprom();
+_Bool Write_Route_Value_EEPROM(uint8_t offset_address_eeprom, uint8_t* sourceBuffer, int sizeOfDataToWritten);
+
 
 void STM_CAN_Speed_Select(BITTIME_SETUP nominalBitrate, BITTIME_SETUP dataBitrate);
+
+void Handle_USB_Messages();
+int Parse_Data_From_USB_Buffer(uint8_t* destinationBuf, char* usbBuf, int sizeUsbBuf);
+void Read_Route_Eeprom(Can_Route_Values_t* route, uint8_t offset_address_eeprom, uint8_t number_of_data_to_read);
+void Read_a_Section_of_Eeprom(uint8_t* addressOfArray, uint8_t offset_address_of_section_of_eeprom, uint8_t number_of_data_to_read);
+void Parse_Msg_From_USB_and_Write_Data_To_EEPROM(int num_of_data, int offset_of_data);
+
+uint16_t Calculate_Crc(unsigned char *data, int length);
 
 #endif /* INC_BASICAPP_H_ */
