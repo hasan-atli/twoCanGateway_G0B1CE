@@ -53,7 +53,8 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void MX_FDCAN1_Init(void);
+void MX_FDCAN2_Init(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

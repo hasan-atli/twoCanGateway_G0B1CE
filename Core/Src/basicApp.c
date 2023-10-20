@@ -89,10 +89,10 @@ void Init_Basic_App()
 void Init_CanA()
 {
 	// hıza göre yapılandırma
-//  STM_CAN_Speed_Select();
+	STM_CAN_Speed_Select(&hfdcan1, canA_Values.can_nominal_bitrate, canA_Values.can_data_bitrate);
 
 	// can init
-//	MX_FDCAN1_Init();
+	MX_FDCAN1_Init();
 
 	// filter
     // sonra filtre konulabilir. stm32 default olarak herhangi bir filtre ile eşleşmeyen mesajları FIFO 0 'a atmaktadır.
@@ -133,10 +133,10 @@ void Init_CanA()
 void Init_CanB()
 {
 	// hıza göre yapılandırma
-//  STM_CAN_Speed_Select();
+    STM_CAN_Speed_Select(&hfdcan1, canA_Values.can_nominal_bitrate, canA_Values.can_data_bitrate);
 
 	// can init
-//	MX_FDCAN1_Init();
+	MX_FDCAN2_Init();
 
 	// filter
     if(HAL_FDCAN_ConfigGlobalFilter(&hfdcan2, FDCAN_ACCEPT_IN_RX_FIFO1, FDCAN_ACCEPT_IN_RX_FIFO1, FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE)!= HAL_OK)
@@ -241,16 +241,76 @@ void Read_All_Eeprom()
 	Read_a_Section_of_Eeprom(&routeTwo, ADDR_OFFSET_ROUTE_TWO, NUM_OF_CONST_ROUTE_TWO_VALUE);
 }
 
-
 /**********************************************************/
 //  Name        : STM_CAN_Speed_Select
 //  Parameters  : void
 //  Returns     :
 //  Function    : stm32 canA istenen hızı bulmak için yapılandırma ayarlarını yapılır
 /*--------------------------------------------------------*/
-void STM_CAN_Speed_Select(BITTIME_SETUP nominalBitrate, BITTIME_SETUP dataBitrate)
+void STM_CAN_Speed_Select(FDCAN_HandleTypeDef* hfdcan, BITTIME_SETUP nominalBitrate, BITTIME_SETUP dataBitrate)
 {
+	switch (nominalBitrate)
+	{
+	case CAN_250KBPS:
+		hfdcan->Init.NominalPrescaler = 1;
+		hfdcan->Init.NominalSyncJumpWidth = 8;
+		hfdcan->Init.NominalTimeSeg1 = 55;
+		hfdcan->Init.NominalTimeSeg2 = 8;
 
+		break;
+
+	case CAN_500KBPS:
+		hfdcan->Init.NominalPrescaler = 1;
+		hfdcan->Init.NominalSyncJumpWidth = 4;
+		hfdcan->Init.NominalTimeSeg1 = 27;
+		hfdcan->Init.NominalTimeSeg2 = 4;
+
+		break;
+
+	case CAN_1000KBPS:
+		hfdcan->Init.NominalPrescaler = 1;
+		hfdcan->Init.NominalSyncJumpWidth = 2;
+		hfdcan->Init.NominalTimeSeg1 = 13;
+		hfdcan->Init.NominalTimeSeg2 = 2;
+
+		break;
+	default:
+		debugPrint("ERROR: nominalBitrate\n");
+		Error_Handler();
+		break;
+	}
+
+/******/
+	switch (dataBitrate)
+	{
+	case CAN_250KBPS:
+		hfdcan->Init.NominalPrescaler = 2;
+		hfdcan->Init.NominalSyncJumpWidth = 4;
+		hfdcan->Init.NominalTimeSeg1 = 27;
+		hfdcan->Init.NominalTimeSeg2 = 4;
+
+		break;
+
+	case CAN_500KBPS:
+		hfdcan->Init.NominalPrescaler = 1;
+		hfdcan->Init.NominalSyncJumpWidth = 4;
+		hfdcan->Init.NominalTimeSeg1 = 27;
+		hfdcan->Init.NominalTimeSeg2 = 4;
+
+		break;
+
+	case CAN_1000KBPS:
+		hfdcan->Init.NominalPrescaler = 1;
+		hfdcan->Init.NominalSyncJumpWidth = 2;
+		hfdcan->Init.NominalTimeSeg1 = 13;
+		hfdcan->Init.NominalTimeSeg2 = 2;
+
+		break;
+	default:
+		debugPrint("ERROR: dataBitrate\n");
+		Error_Handler();
+		break;
+	}
 }
 
 /**********************************************************/

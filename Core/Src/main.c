@@ -110,8 +110,6 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C1_Init(void);
-static void MX_FDCAN1_Init(void);
-static void MX_FDCAN2_Init(void);
 /* USER CODE BEGIN PFP */
 void isPressedBtn();
 void heartBeat();
@@ -120,7 +118,7 @@ void handleReceivedDataFromUart();
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t *data = "tork robotik\n";
+
 /* USER CODE END 0 */
 
 /**
@@ -298,7 +296,7 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-static void MX_FDCAN1_Init(void)
+void MX_FDCAN1_Init(void)
 {
 
   /* USER CODE BEGIN FDCAN1_Init 0 */
@@ -315,14 +313,14 @@ static void MX_FDCAN1_Init(void)
   hfdcan1.Init.AutoRetransmission = DISABLE;
   hfdcan1.Init.TransmitPause = DISABLE;
   hfdcan1.Init.ProtocolException = DISABLE;
-  hfdcan1.Init.NominalPrescaler = 1;
-  hfdcan1.Init.NominalSyncJumpWidth = 3;
-  hfdcan1.Init.NominalTimeSeg1 = 28;
-  hfdcan1.Init.NominalTimeSeg2 = 3;
-  hfdcan1.Init.DataPrescaler = 1;
-  hfdcan1.Init.DataSyncJumpWidth = 4;
-  hfdcan1.Init.DataTimeSeg1 = 27;
-  hfdcan1.Init.DataTimeSeg2 = 4;
+//  hfdcan1.Init.NominalPrescaler = 1;
+//  hfdcan1.Init.NominalSyncJumpWidth = 111;
+//  hfdcan1.Init.NominalTimeSeg1 = 111;
+//  hfdcan1.Init.NominalTimeSeg2 = 3;
+//  hfdcan1.Init.DataPrescaler = 1;
+//  hfdcan1.Init.DataSyncJumpWidth = 16;
+//  hfdcan1.Init.DataTimeSeg1 = 27;
+//  hfdcan1.Init.DataTimeSeg2 = 4;
   hfdcan1.Init.StdFiltersNbr = 0;
   hfdcan1.Init.ExtFiltersNbr = 0;
   hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
@@ -341,7 +339,7 @@ static void MX_FDCAN1_Init(void)
   * @param None
   * @retval None
   */
-static void MX_FDCAN2_Init(void)
+void MX_FDCAN2_Init(void)
 {
 
   /* USER CODE BEGIN FDCAN2_Init 0 */
@@ -358,14 +356,14 @@ static void MX_FDCAN2_Init(void)
   hfdcan2.Init.AutoRetransmission = DISABLE;
   hfdcan2.Init.TransmitPause = DISABLE;
   hfdcan2.Init.ProtocolException = DISABLE;
-  hfdcan2.Init.NominalPrescaler = 1;
-  hfdcan2.Init.NominalSyncJumpWidth = 3;
-  hfdcan2.Init.NominalTimeSeg1 = 28;
-  hfdcan2.Init.NominalTimeSeg2 = 3;
-  hfdcan2.Init.DataPrescaler = 1;
-  hfdcan2.Init.DataSyncJumpWidth = 4;
-  hfdcan2.Init.DataTimeSeg1 = 27;
-  hfdcan2.Init.DataTimeSeg2 = 4;
+//  hfdcan2.Init.NominalPrescaler = 1;
+//  hfdcan2.Init.NominalSyncJumpWidth = 3;
+//  hfdcan2.Init.NominalTimeSeg1 = 28;
+//  hfdcan2.Init.NominalTimeSeg2 = 3;
+//  hfdcan2.Init.DataPrescaler = 1;
+//  hfdcan2.Init.DataSyncJumpWidth = 4;
+//  hfdcan2.Init.DataTimeSeg1 = 27;
+//  hfdcan2.Init.DataTimeSeg2 = 4;
   hfdcan2.Init.StdFiltersNbr = 0;
   hfdcan2.Init.ExtFiltersNbr = 0;
   hfdcan2.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
@@ -487,6 +485,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
