@@ -125,7 +125,7 @@ void Read_All_Eeprom();
 _Bool Write_Route_Value_EEPROM(uint8_t offset_address_eeprom, uint8_t* sourceBuffer, int sizeOfDataToWritten);
 
 
-void STM_CAN_Speed_Select(FDCAN_HandleTypeDef* hfdcan, BITTIME_SETUP nominalBitrate, BITTIME_SETUP dataBitrate);
+void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTIME_SETUP nominalBitrate, BITTIME_SETUP dataBitrate);
 
 void Handle_USB_Messages();
 int Parse_Data_From_USB_Buffer(uint8_t* destinationBuf, char* usbBuf, int sizeUsbBuf);

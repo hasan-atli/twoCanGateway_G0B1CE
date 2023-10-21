@@ -89,7 +89,7 @@ void Init_Basic_App()
 void Init_CanA()
 {
 	// hıza göre yapılandırma
-	STM_CAN_Speed_Select(&hfdcan1, canA_Values.can_nominal_bitrate, canA_Values.can_data_bitrate);
+	Set_Stm_Can_Config(&hfdcan1, canA_Values.FDFormat, canA_Values.can_nominal_bitrate, canA_Values.can_data_bitrate);
 
 	// can init
 	MX_FDCAN1_Init();
@@ -133,7 +133,7 @@ void Init_CanA()
 void Init_CanB()
 {
 	// hıza göre yapılandırma
-    STM_CAN_Speed_Select(&hfdcan1, canA_Values.can_nominal_bitrate, canA_Values.can_data_bitrate);
+	Set_Stm_Can_Config(&hfdcan1, canB_Values.FDFormat, canB_Values.can_nominal_bitrate, canB_Values.can_data_bitrate);
 
 	// can init
 	MX_FDCAN2_Init();
@@ -243,12 +243,28 @@ void Read_All_Eeprom()
 
 /**********************************************************/
 //  Name        : STM_CAN_Speed_Select
-//  Parameters  : void
+//  Parameters  : uint32_t frameFormat : /*!< Specifies the FDCAN frame format.
+//                                            This parameter can be a value of @ref FDCAN_frame_format     */
 //  Returns     :
 //  Function    : stm32 canA istenen hızı bulmak için yapılandırma ayarlarını yapılır
 /*--------------------------------------------------------*/
-void STM_CAN_Speed_Select(FDCAN_HandleTypeDef* hfdcan, BITTIME_SETUP nominalBitrate, BITTIME_SETUP dataBitrate)
+void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTIME_SETUP nominalBitrate, BITTIME_SETUP dataBitrate)
 {
+	// Frame Format
+	switch (frameFormat) {
+		case 0:
+			hfdcan->Init.FrameFormat = FDCAN_FRAME_CLASSIC;
+			break;
+		case 1:
+			hfdcan->Init.FrameFormat = FDCAN_FRAME_FD_NO_BRS;
+			break;
+		case 2:
+			hfdcan->Init.FrameFormat = FDCAN_FRAME_FD_BRS;
+			break;
+	}
+
+
+	// Can Speed
 	switch (nominalBitrate)
 	{
 	case CAN_250KBPS:
@@ -276,7 +292,7 @@ void STM_CAN_Speed_Select(FDCAN_HandleTypeDef* hfdcan, BITTIME_SETUP nominalBitr
 		break;
 	default:
 		debugPrint("ERROR: nominalBitrate\n");
-		Error_Handler();
+		//Error_Handler();
 		break;
 	}
 
@@ -308,7 +324,7 @@ void STM_CAN_Speed_Select(FDCAN_HandleTypeDef* hfdcan, BITTIME_SETUP nominalBitr
 		break;
 	default:
 		debugPrint("ERROR: dataBitrate\n");
-		Error_Handler();
+		//Error_Handler();
 		break;
 	}
 }
@@ -607,7 +623,7 @@ void Read_a_Section_of_Eeprom(uint8_t* addressOfArray, uint8_t offset_address_of
 
 	if(read_CRC.Byte[0] == calculated_CRC.Byte[0] && read_CRC.Byte[1] == calculated_CRC.Byte[1])
 	{
-		debugPrintf("eeprom Crc BASARILI offset: %d\n|n", offset_address_of_section_of_eeprom);
+		debugPrintf("eeprom Crc BASARILI offset: %d\n\n", offset_address_of_section_of_eeprom);
 	}
 	else
 	{
