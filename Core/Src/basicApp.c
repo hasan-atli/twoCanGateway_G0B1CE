@@ -133,7 +133,7 @@ void Init_CanA()
 void Init_CanB()
 {
 	// hıza göre yapılandırma
-	Set_Stm_Can_Config(&hfdcan1, canB_Values.FDFormat, canB_Values.can_nominal_bitrate, canB_Values.can_data_bitrate);
+	Set_Stm_Can_Config(&hfdcan2, canB_Values.FDFormat, canB_Values.can_nominal_bitrate, canB_Values.can_data_bitrate);
 
 	// can init
 	MX_FDCAN2_Init();
@@ -251,7 +251,8 @@ void Read_All_Eeprom()
 void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTIME_SETUP nominalBitrate, BITTIME_SETUP dataBitrate)
 {
 	// Frame Format
-	switch (frameFormat) {
+	switch (frameFormat)
+	{
 		case 0:
 			hfdcan->Init.FrameFormat = FDCAN_FRAME_CLASSIC;
 			break;
@@ -267,6 +268,14 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 	// Can Speed
 	switch (nominalBitrate)
 	{
+	case CAN_200KBPS:
+		hfdcan->Init.NominalPrescaler = 1;
+		hfdcan->Init.NominalSyncJumpWidth = 8;
+		hfdcan->Init.NominalTimeSeg1 = 71;
+		hfdcan->Init.NominalTimeSeg2 = 8;
+
+		break;
+
 	case CAN_250KBPS:
 		hfdcan->Init.NominalPrescaler = 1;
 		hfdcan->Init.NominalSyncJumpWidth = 8;
@@ -283,47 +292,57 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 
 		break;
 
-	case CAN_1000KBPS:
+	case CAN_800KBPS:
 		hfdcan->Init.NominalPrescaler = 1;
 		hfdcan->Init.NominalSyncJumpWidth = 2;
-		hfdcan->Init.NominalTimeSeg1 = 13;
+		hfdcan->Init.NominalTimeSeg1 = 17;
 		hfdcan->Init.NominalTimeSeg2 = 2;
 
 		break;
 	default:
-		debugPrint("ERROR: nominalBitrate\n");
+		debugPrint("ERROR: nominalBitrate\n")
+		;
 		//Error_Handler();
 		break;
 	}
 
-/******/
+	/******/
 	switch (dataBitrate)
 	{
+	case CAN_200KBPS:
+			hfdcan->Init.DataPrescaler = 5;
+			hfdcan->Init.DataSyncJumpWidth = 2;
+			hfdcan->Init.DataTimeSeg1 = 13;
+			hfdcan->Init.DataTimeSeg2 = 2;
+
+			break;
+
 	case CAN_250KBPS:
-		hfdcan->Init.NominalPrescaler = 2;
-		hfdcan->Init.NominalSyncJumpWidth = 4;
-		hfdcan->Init.NominalTimeSeg1 = 27;
-		hfdcan->Init.NominalTimeSeg2 = 4;
+		hfdcan->Init.DataPrescaler = 2;
+		hfdcan->Init.DataSyncJumpWidth = 4;
+		hfdcan->Init.DataTimeSeg1 = 27;
+		hfdcan->Init.DataTimeSeg2 = 4;
 
 		break;
 
 	case CAN_500KBPS:
-		hfdcan->Init.NominalPrescaler = 1;
-		hfdcan->Init.NominalSyncJumpWidth = 4;
-		hfdcan->Init.NominalTimeSeg1 = 27;
-		hfdcan->Init.NominalTimeSeg2 = 4;
+		hfdcan->Init.DataPrescaler = 1;
+		hfdcan->Init.DataSyncJumpWidth = 4;
+		hfdcan->Init.DataTimeSeg1 = 27;
+		hfdcan->Init.DataTimeSeg2 = 4;
 
 		break;
 
-	case CAN_1000KBPS:
-		hfdcan->Init.NominalPrescaler = 1;
-		hfdcan->Init.NominalSyncJumpWidth = 2;
-		hfdcan->Init.NominalTimeSeg1 = 13;
-		hfdcan->Init.NominalTimeSeg2 = 2;
+	case CAN_800KBPS:
+		hfdcan->Init.DataPrescaler = 1;
+		hfdcan->Init.DataSyncJumpWidth = 2;
+		hfdcan->Init.DataTimeSeg1 = 17;
+		hfdcan->Init.DataTimeSeg2 = 2;
 
 		break;
 	default:
-		debugPrint("ERROR: dataBitrate\n");
+		debugPrint("ERROR: dataBitrate\n")
+		;
 		//Error_Handler();
 		break;
 	}
