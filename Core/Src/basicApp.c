@@ -34,6 +34,7 @@ extern FDCAN_TxHeaderTypeDef bufTxHdr_B;
 //for USB
 char rxBufferUSB[64];
 bool    isReceivedUSB;
+bool    isTransmittedUsbData = false; // usb den veri tx tamamlandıgında kesmede bayrak true yapılır
 /**********************************************************/
 
 /**
@@ -245,6 +246,9 @@ void Read_All_Eeprom()
 //  Name        : STM_CAN_Speed_Select
 //  Parameters  : uint32_t frameFormat : /*!< Specifies the FDCAN frame format.
 //                                            This parameter can be a value of @ref FDCAN_frame_format     */
+//                                       	0: FDCAN_FRAME_CLASSIC
+//                                       	1: FDCAN_FRAME_FD_NO_BRS
+//                                       	2: FDCAN_FRAME_FD_BRS     varsayılacak. EEPROM'a öyle kayıt edilecek
 //  Returns     :
 //  Function    : stm32 canA istenen hızı bulmak için yapılandırma ayarlarını yapılır
 /*--------------------------------------------------------*/
@@ -268,12 +272,53 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 	// Can Speed
 	switch (nominalBitrate)
 	{
+	case CAN_25KBPS:
+		hfdcan->Init.NominalPrescaler = 4;
+		hfdcan->Init.NominalSyncJumpWidth = 20;
+		hfdcan->Init.NominalTimeSeg1 = 139;
+		hfdcan->Init.NominalTimeSeg2 = 20;
+		break;
+
+	case CAN_40KBPS:
+		hfdcan->Init.NominalPrescaler = 2;
+		hfdcan->Init.NominalSyncJumpWidth = 20;
+		hfdcan->Init.NominalTimeSeg1 = 179;
+		hfdcan->Init.NominalTimeSeg2 = 20;
+		break;
+
+	case CAN_50KBPS:
+		hfdcan->Init.NominalPrescaler = 2;
+		hfdcan->Init.NominalSyncJumpWidth = 20;
+		hfdcan->Init.NominalTimeSeg1 = 139;
+		hfdcan->Init.NominalTimeSeg2 = 20;
+		break;
+
+	case CAN_80KBPS:
+		hfdcan->Init.NominalPrescaler = 1;
+		hfdcan->Init.NominalSyncJumpWidth = 20;
+		hfdcan->Init.NominalTimeSeg1 = 179;
+		hfdcan->Init.NominalTimeSeg2 = 20;
+		break;
+
+	case CAN_100KBPS:
+		hfdcan->Init.NominalPrescaler = 1;
+		hfdcan->Init.NominalSyncJumpWidth = 16;
+		hfdcan->Init.NominalTimeSeg1 = 143;
+		hfdcan->Init.NominalTimeSeg2 = 16;
+		break;
+
+	case CAN_125KBPS:
+		hfdcan->Init.NominalPrescaler = 1;
+		hfdcan->Init.NominalSyncJumpWidth = 16;
+		hfdcan->Init.NominalTimeSeg1 = 111;
+		hfdcan->Init.NominalTimeSeg2 = 16;
+		break;
+
 	case CAN_200KBPS:
 		hfdcan->Init.NominalPrescaler = 1;
 		hfdcan->Init.NominalSyncJumpWidth = 8;
 		hfdcan->Init.NominalTimeSeg1 = 71;
 		hfdcan->Init.NominalTimeSeg2 = 8;
-
 		break;
 
 	case CAN_250KBPS:
@@ -281,7 +326,13 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 		hfdcan->Init.NominalSyncJumpWidth = 8;
 		hfdcan->Init.NominalTimeSeg1 = 55;
 		hfdcan->Init.NominalTimeSeg2 = 8;
+		break;
 
+	case CAN_400KBPS:
+		hfdcan->Init.NominalPrescaler = 1;
+		hfdcan->Init.NominalSyncJumpWidth = 4;
+		hfdcan->Init.NominalTimeSeg1 = 35;
+		hfdcan->Init.NominalTimeSeg2 = 4;
 		break;
 
 	case CAN_500KBPS:
@@ -289,7 +340,6 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 		hfdcan->Init.NominalSyncJumpWidth = 4;
 		hfdcan->Init.NominalTimeSeg1 = 27;
 		hfdcan->Init.NominalTimeSeg2 = 4;
-
 		break;
 
 	case CAN_800KBPS:
@@ -297,11 +347,16 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 		hfdcan->Init.NominalSyncJumpWidth = 2;
 		hfdcan->Init.NominalTimeSeg1 = 17;
 		hfdcan->Init.NominalTimeSeg2 = 2;
+		break;
 
+	case CAN_1000KBPS:
+		hfdcan->Init.NominalPrescaler = 1;
+		hfdcan->Init.NominalSyncJumpWidth = 2;
+		hfdcan->Init.NominalTimeSeg1 = 13;
+		hfdcan->Init.NominalTimeSeg2 = 2;
 		break;
 	default:
-		debugPrint("ERROR: nominalBitrate\n")
-		;
+		debugPrint("ERROR: nominalBitrate\n");
 		//Error_Handler();
 		break;
 	}
@@ -309,20 +364,67 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 	/******/
 	switch (dataBitrate)
 	{
-	case CAN_200KBPS:
-			hfdcan->Init.DataPrescaler = 5;
-			hfdcan->Init.DataSyncJumpWidth = 2;
-			hfdcan->Init.DataTimeSeg1 = 13;
-			hfdcan->Init.DataTimeSeg2 = 2;
+	case CAN_25KBPS:
+		hfdcan->Init.DataPrescaler = 20;
+		hfdcan->Init.DataSyncJumpWidth = 4;
+		hfdcan->Init.DataTimeSeg1 = 27;
+		hfdcan->Init.DataTimeSeg2 = 4;
+		break;
 
-			break;
+	case CAN_40KBPS:
+		hfdcan->Init.DataPrescaler = 25;
+		hfdcan->Init.DataSyncJumpWidth = 2;
+		hfdcan->Init.DataTimeSeg1 = 13;
+		hfdcan->Init.DataTimeSeg2 = 2;
+		break;
+
+	case CAN_50KBPS:
+		hfdcan->Init.DataPrescaler = 10;
+		hfdcan->Init.DataSyncJumpWidth = 4;
+		hfdcan->Init.DataTimeSeg1 = 27;
+		hfdcan->Init.DataTimeSeg2 = 4;
+		break;
+
+	case CAN_80KBPS:
+		hfdcan->Init.DataPrescaler = 25;
+		hfdcan->Init.DataSyncJumpWidth = 1;
+		hfdcan->Init.DataTimeSeg1 = 6;
+		hfdcan->Init.DataTimeSeg2 = 1;
+		break;
+
+	case CAN_100KBPS:
+		hfdcan->Init.DataPrescaler = 5;
+		hfdcan->Init.DataSyncJumpWidth = 4;
+	    hfdcan->Init.DataTimeSeg1 = 27;
+		hfdcan->Init.DataTimeSeg2 = 4;
+		break;
+
+	case CAN_125KBPS:
+		hfdcan->Init.DataPrescaler = 4;
+		hfdcan->Init.DataSyncJumpWidth = 4;
+		hfdcan->Init.DataTimeSeg1 = 27;
+		hfdcan->Init.DataTimeSeg2 = 4;
+		break;
+
+	case CAN_200KBPS:
+		hfdcan->Init.DataPrescaler = 5;
+		hfdcan->Init.DataSyncJumpWidth = 2;
+		hfdcan->Init.DataTimeSeg1 = 13;
+		hfdcan->Init.DataTimeSeg2 = 2;
+		break;
 
 	case CAN_250KBPS:
 		hfdcan->Init.DataPrescaler = 2;
 		hfdcan->Init.DataSyncJumpWidth = 4;
 		hfdcan->Init.DataTimeSeg1 = 27;
 		hfdcan->Init.DataTimeSeg2 = 4;
+		break;
 
+	case CAN_400KBPS:
+		hfdcan->Init.DataPrescaler = 2;
+		hfdcan->Init.DataSyncJumpWidth = 2;
+		hfdcan->Init.DataTimeSeg1 = 17;
+		hfdcan->Init.DataTimeSeg2 = 2;
 		break;
 
 	case CAN_500KBPS:
@@ -330,7 +432,6 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 		hfdcan->Init.DataSyncJumpWidth = 4;
 		hfdcan->Init.DataTimeSeg1 = 27;
 		hfdcan->Init.DataTimeSeg2 = 4;
-
 		break;
 
 	case CAN_800KBPS:
@@ -338,11 +439,16 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 		hfdcan->Init.DataSyncJumpWidth = 2;
 		hfdcan->Init.DataTimeSeg1 = 17;
 		hfdcan->Init.DataTimeSeg2 = 2;
+		break;
 
+	case CAN_1000KBPS:
+		hfdcan->Init.DataPrescaler = 1;
+		hfdcan->Init.DataSyncJumpWidth = 2;
+		hfdcan->Init.DataTimeSeg1 = 13;
+		hfdcan->Init.DataTimeSeg2 = 2;
 		break;
 	default:
-		debugPrint("ERROR: dataBitrate\n")
-		;
+		debugPrint("ERROR: dataBitrate\n");
 		//Error_Handler();
 		break;
 	}
@@ -381,6 +487,31 @@ void Handle_USB_Messages()
 			debugPrint("usb ROUTE_2_MSG\n");
 
 			Parse_Msg_From_USB_and_Write_Data_To_EEPROM(NUM_OF_CONST_ROUTE_TWO_VALUE, ADDR_OFFSET_ROUTE_TWO);
+		}
+		else if (!strncmp(RESET_MSG, rxBufferUSB, sizeof(RESET_MSG)))
+		{
+			debugPrint("usb RESET\n");
+
+			CDC_Transmit_FS((uint8_t*) OK_MSG, sizeof(OK_MSG));
+
+			while(isTransmittedUsbData == false)
+			{
+				HAL_GPIO_TogglePin(LED_BLINK_GPIO_Port, LED_BLINK_Pin);
+				HAL_GPIO_TogglePin(LED_A_GPIO_Port, LED_A_Pin);
+				HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
+				HAL_Delay(100);
+				HAL_GPIO_TogglePin(LED_BLINK_GPIO_Port, LED_BLINK_Pin);
+				HAL_GPIO_TogglePin(LED_A_GPIO_Port, LED_A_Pin);
+				HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
+				HAL_Delay(100);
+				HAL_GPIO_TogglePin(LED_BLINK_GPIO_Port, LED_BLINK_Pin);
+				HAL_GPIO_TogglePin(LED_A_GPIO_Port, LED_A_Pin);
+				HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
+				HAL_Delay(100);
+			}
+
+			HAL_NVIC_SystemReset();
+
 		}
 
 

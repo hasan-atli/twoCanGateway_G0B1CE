@@ -14,6 +14,7 @@ const char ARE_YOU_OK_MSG[4]     = {'$', '?', '*',};
 const char CAN_VAL_MSG[6]        = {'$', 'C', 'A', 'N', 'V', ','};
 const char ROUTE_1_MSG[6]        = {'$', 'R', 'O', 'N', 'E', ','};
 const char ROUTE_2_MSG[6]        = {'$', 'R', 'T', 'W', 'O', ','};
+const char RESET_MSG[7]          = {'$', 'R', 'E', 'S', 'E', 'T', '*'};
 
 
 // MESSAGE TO SEND
