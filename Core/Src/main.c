@@ -174,25 +174,28 @@ int main(void)
      * rota1
      * yön canA -> canB
      ****************************************************************************************************/
-		result_One = canMsgRingBufferPop(&routeOne.Route_Ring_Buf ,&canMsg);
-
-		while(result_One == CAN_OK)
+		if(routeOne.Is_Route_Enable == 1)
 		{
-			debugPrint("TX, route1-> canB->\n");
-
-			//... gönderilmeden mesjlar değişim geçirme fonk. eklenecek
-
-			bufTxHdr_B.Identifier          = canMsg.Identifier;
-			bufTxHdr_B.IdType              = canMsg.IdType;
-			bufTxHdr_B.TxFrameType         = canMsg.FrameType;
-			bufTxHdr_B.DataLength          = canMsg.DataLength;
-			bufTxHdr_B.FDFormat            = canMsg.FDFormat;
-			bufTxHdr_B.BitRateSwitch       = canMsg.BitRateSwitch;
-			bufTxHdr_B.ErrorStateIndicator = canMsg.ErrorStateIndicator;
-
-			HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan2, &bufTxHdr_B, canMsg.Payload);  //canB den gönder
-
 			result_One = canMsgRingBufferPop(&routeOne.Route_Ring_Buf ,&canMsg);
+
+			while(result_One == CAN_OK)
+			{
+				debugPrint("TX, route1-> canB->\n");
+
+				//... gönderilmeden mesjlar değişim geçirme fonk. eklenecek
+
+				bufTxHdr_B.Identifier = Handle_ID_Before_Transmit(routeOne, canMsg.Identifier, canMsg.IdType);
+				bufTxHdr_B.IdType = Handle_IdType_Before_Transmit(routeOne, canMsg.IdType);
+				bufTxHdr_B.TxFrameType = canMsg.FrameType;
+				bufTxHdr_B.DataLength = canMsg.DataLength;
+				bufTxHdr_B.FDFormat = canMsg.FDFormat;
+				bufTxHdr_B.BitRateSwitch = canMsg.BitRateSwitch;
+				bufTxHdr_B.ErrorStateIndicator = canMsg.ErrorStateIndicator;
+
+				HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan2, &bufTxHdr_B, canMsg.Payload);  //canB den gönder
+
+				result_One = canMsgRingBufferPop(&routeOne.Route_Ring_Buf, &canMsg);
+			}
 		}
 
      /***************************************************************************************************/
@@ -202,24 +205,26 @@ int main(void)
      * rota2
      * yön canB -> canA
      ****************************************************************************************************/
-		result_Two = canMsgRingBufferPop(&routeTwo.Route_Ring_Buf ,&canMsg);
-
-		while(result_Two == CAN_OK)
+		if(routeTwo.Is_Route_Enable == 1)
 		{
-			debugPrint("TX, route2-> canA-> \n");
-			//... gönderilmeden mesjlar değişim geçirme fonk. eklenecek
-
-			bufTxHdr_B.Identifier          = canMsg.Identifier;
-			bufTxHdr_B.IdType              = canMsg.IdType;
-			bufTxHdr_B.TxFrameType         = canMsg.FrameType;
-			bufTxHdr_B.DataLength          = canMsg.DataLength;
-			bufTxHdr_B.FDFormat            = canMsg.FDFormat;
-			bufTxHdr_B.BitRateSwitch       = canMsg.BitRateSwitch;
-			bufTxHdr_B.ErrorStateIndicator = canMsg.ErrorStateIndicator;
-
-			HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &bufTxHdr_B, canMsg.Payload);  //canA den gönder
-
 			result_Two = canMsgRingBufferPop(&routeTwo.Route_Ring_Buf ,&canMsg);
+			while(result_Two == CAN_OK)
+			{
+				debugPrint("TX, route2-> canA-> \n");
+				//... gönderilmeden mesjlar değişim geçirme fonk. eklenecek
+
+				bufTxHdr_B.Identifier =  Handle_ID_Before_Transmit(routeTwo, canMsg.Identifier, canMsg.IdType);
+				bufTxHdr_B.IdType = Handle_IdType_Before_Transmit(routeTwo, canMsg.IdType);
+				bufTxHdr_B.TxFrameType = canMsg.FrameType;
+				bufTxHdr_B.DataLength = canMsg.DataLength;
+				bufTxHdr_B.FDFormat = canMsg.FDFormat;
+				bufTxHdr_B.BitRateSwitch = canMsg.BitRateSwitch;
+				bufTxHdr_B.ErrorStateIndicator = canMsg.ErrorStateIndicator;
+
+				HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &bufTxHdr_B, canMsg.Payload);  //canA den gönder
+
+				result_Two = canMsgRingBufferPop(&routeTwo.Route_Ring_Buf, &canMsg);
+			}
 		}
      /***************************************************************************************************/
 
@@ -721,21 +726,21 @@ void handleReceivedDataFromUart()
 			debugPrintf("canB_Values.can_data_bitrate: %d\n",     canB_Values.can_data_bitrate);
 
 
-			//route 1
-			debugPrintf("routeOne.Is_Route_Enable: %d\n", routeOne.Is_Route_Enable);
-			debugPrintf("routeOne.Can_A_ext_flg: %d\n", routeOne.Can_A_ext_flg);
-			debugPrintf("routeOne.Can_A_id_mode: %d\n", routeOne.Can_A_id_mode);
-
-			debugPrintf("routeOne.Can_B_ext_flg: %d\n", routeOne.Can_B_ext_flg);
-			debugPrintf("routeOne.Can_B_id_mode: %d\n", routeOne.Can_B_id_mode);
-
-			//route 2
-			debugPrintf("routeTwo.Is_Route_Enable: %d\n", routeTwo.Is_Route_Enable);
-			debugPrintf("routeTwo.Can_A_state: %d\n", routeTwo.Can_A_ext_flg);
-			debugPrintf("routeTwo.Can_A_state: %d\n", routeTwo.Can_A_id_mode);
-
-			debugPrintf("routeTwo.Can_B_ext_flg: %d\n", routeTwo.Can_B_ext_flg);
-			debugPrintf("routeTwo.Can_B_id_mode: %d\n", routeTwo.Can_B_id_mode);
+//			//route 1
+//			debugPrintf("routeOne.Is_Route_Enable: %d\n", routeOne.Is_Route_Enable);
+//			debugPrintf("routeOne.Can_A_ext_flg: %d\n", routeOne.Can_A_ext_flg);
+//			debugPrintf("routeOne.Can_A_id_mode: %d\n", routeOne.Can_A_id_mode);
+//
+//			debugPrintf("routeOne.Can_B_ext_flg: %d\n", routeOne.Can_B_ext_flg);
+//			debugPrintf("routeOne.Can_B_id_mode: %d\n", routeOne.Can_B_id_mode);
+//
+//			//route 2
+//			debugPrintf("routeTwo.Is_Route_Enable: %d\n", routeTwo.Is_Route_Enable);
+//			debugPrintf("routeTwo.Can_A_state: %d\n", routeTwo.Can_A_ext_flg);
+//			debugPrintf("routeTwo.Can_A_state: %d\n", routeTwo.Can_A_id_mode);
+//
+//			debugPrintf("routeTwo.Can_B_ext_flg: %d\n", routeTwo.Can_B_ext_flg);
+//			debugPrintf("routeTwo.Can_B_id_mode: %d\n", routeTwo.Can_B_id_mode);
 
 		}
 

@@ -781,3 +781,135 @@ void Read_a_Section_of_Eeprom(uint8_t* addressOfArray, uint8_t offset_address_of
 		//Error_Handler();
 	}
 }
+
+/**********************************************************/
+//  Name        : Handle_ID_Before_Transmit
+//  Parameters  :
+//  Returns     :
+//  Function    : Gelen Can Mesajın id'sini gönderilmeden önce nasıl değişim geçireceğini karar veren fonksiyon.
+/*--------------------------------------------------------*/
+uint32_t Handle_ID_Before_Transmit(Can_Route_Values_t route, uint32_t Identifier, uint32_t IdType)
+{
+	if (IdType == FDCAN_STANDARD_ID)
+	{
+		switch (route.Handle_If_Received_Std_Id_Msg)
+		{
+		case _BRIDGE_MODE_:
+			return Identifier;
+			break;
+
+		case _CONVERT_EXT_AS_SAME_VALUE:
+			return Identifier;
+			break;
+
+		case _CONVERT_EXT_BY_18_SHIFTING_BITS: //sol
+			return Identifier << 18;
+			break;
+
+		case _ADD_AUXILIARY_VAR_:
+			return Identifier + route.Std_Auxiliary_Variable;
+			break;
+
+		case _SHIFT_RIGHT_AUXILIARY_VAR_BITS_:
+			return Identifier >> route.Std_Auxiliary_Variable;
+			break;
+
+		case _SHIFT_LEFT_AUXILIARY_VAR_BITS_:
+			return Identifier << route.Std_Auxiliary_Variable;
+			break;
+
+		default:
+			return Identifier;
+			break;
+		}
+
+	}
+	else
+	{
+		switch (route.Handle_If_Received_Ext_Id_Msg)
+		{
+		case _BRIDGE_MODE_:
+			return Identifier;
+			break;
+
+		case _CONVERT_STD_AS_SAME_VALUE:
+			return Identifier;
+			break;
+
+		case _CONVERT_STD_BY_18_SHIFTING_BITS:
+			return Identifier >> 18;  //saga
+			break;
+
+		case _ADD_AUXILIARY_VAR_:
+			return Identifier + route.Std_Auxiliary_Variable;
+			break;
+
+		case _SHIFT_RIGHT_AUXILIARY_VAR_BITS_:
+			return Identifier >> route.Std_Auxiliary_Variable;
+			break;
+
+		case _SHIFT_LEFT_AUXILIARY_VAR_BITS_:
+			return Identifier << route.Std_Auxiliary_Variable;
+			break;
+
+		default:
+			return Identifier;
+			break;
+		}
+	}
+}
+
+
+/**********************************************************/
+//  Name        : Handle_ID_Before_Transmit
+//  Parameters  :
+//  Returns     :
+//  Function    : Gelen Can Mesajın id'sini gönderilmeden önce nasıl değişim geçireceğini karar veren fonksiyon.
+/*--------------------------------------------------------*/
+uint32_t Handle_IdType_Before_Transmit(Can_Route_Values_t route, uint32_t IdType)
+{
+	if (IdType == FDCAN_STANDARD_ID)
+	{
+		switch (route.Handle_If_Received_Std_Id_Msg)
+		{
+		case _BRIDGE_MODE_:
+			return IdType;
+			break;
+
+		case _CONVERT_EXT_AS_SAME_VALUE:
+			return FDCAN_EXTENDED_ID;
+			break;
+
+		case _CONVERT_EXT_BY_18_SHIFTING_BITS:
+			return FDCAN_EXTENDED_ID;
+			break;
+
+		default:
+			return IdType;
+			break;
+		}
+
+	}
+	else
+	{
+		switch (route.Handle_If_Received_Ext_Id_Msg)
+		{
+		case _BRIDGE_MODE_:
+			return IdType;
+			break;
+
+		case _CONVERT_STD_AS_SAME_VALUE:
+			return FDCAN_STANDARD_ID;
+			break;
+
+		case _CONVERT_STD_BY_18_SHIFTING_BITS:
+			return FDCAN_STANDARD_ID;
+			break;
+
+		default:
+			return IdType;
+			break;
+		}
+	}
+
+}

@@ -13,6 +13,36 @@
 #include "canMsg.h"
 #include "canMsgRingBuf.h"
 
+
+/** @defgroup  Handles_Received_Id
+ *        des: Handles that can be done to the ID of received msg
+  * @{
+  */
+#define	_BRIDGE_MODE_                        ((uint8_t)0x00U)     /** mesajın id si ne ise değiştirmeden direk aynı sekilde gönder. **/
+
+#define	_CONVERT_STD_AS_SAME_VALUE           ((uint8_t)0x01U)     /** gelen mesajın id ext ise std gibi gönder. Büyüklük olarak id degeri aynı kalacaktır.
+																      Std gelirse direk gönder.  **/
+
+#define	_CONVERT_STD_BY_18_SHIFTING_BITS     ((uint8_t)0x02U)     /** gelen mesajın id ext ise 18 bit sağa kaydırarak std şeklinde gönder .
+																       Std gelirse direk gönder. **/
+
+#define	_ADD_AUXILIARY_VAR_                  ((uint8_t)0x03U)     /**  Ek deger ile gelen id yi topla sonucu gönder. **/
+
+#define	_SHIFT_RIGHT_AUXILIARY_VAR_BITS_     ((uint8_t)0x04U)     /**  Ek deger kadar gelen id'yi saga kaydır ve sonucu gönder. **/
+
+#define	_SHIFT_LEFT_AUXILIARY_VAR_BITS_      ((uint8_t)0x05U)     /**  Ek deger ile gelen id'yi  sola kaydır vea sonucu gönder. **/
+
+
+#define	_CONVERT_EXT_AS_SAME_VALUE           ((uint8_t)0x06U)    /** gelen mesajın id std ise ext gibi gönder. Büyüklük olarak id degeri aynı kalacaktır.
+																      Ext gelirse direk gönder.  **/
+
+#define	_CONVERT_EXT_BY_18_SHIFTING_BITS     ((uint8_t)0x07U)    /** gelen mesajın id std ise 18 bit sola kaydırarak ext şeklinde gönder .
+														       Ext gelirse direk gönder. **/
+/**
+  * @}
+  */
+
+
 /**
  *
  */
@@ -41,30 +71,6 @@ typedef enum {
 } BITTIME_SETUP;
 
 
-/*
- *
- * */
-typedef enum
-{
-	_STD_,
-	_EXT_,
-	_NON_CHANGE_
-}Can_Ext_For_Output_Flg_t;
-
-
-/*
- * //... farklı modlar eklenebilir, modlar değiştirilebilir
- * */
-typedef enum
-{
-	_BRIDGE_MODE_,                 // gelen veri ile gönderilecek idenfier degeri aynıdır
-	_CONVERT_STD_TO_EXT_,          // gelen std degeri ext icin 18 bit sola kaydırma
-	_OFFSET_,
-	_RIGHT_BIT_SHIFT_,
-	_LEFT_BIT_SHIFT_,
-	_MASK_
-}Can_Id_Modes_For_Change_t;
-
 /**
  * CAN config ayarları icin eepromdan okunduktan sonra tutmak icin degisken tanımı
  */
@@ -87,7 +93,7 @@ typedef struct
  * *ÖNEMLi NOT!!!
  * Can_Route_Values_t tipine yeni değişken eklenecekse ve bu değişken eepromdan kayıtlı olacaksa "VARIABLES" ile belirtilen alana koyulmalıdır.
  * "VARIABLES" alanına koyulan  verilerin sırlaması önemlidir. Bu sıralama "24lc01Eeprom.h" kütüphanesindeki route ayarları ile aynı sırada olmalıdır.
- *  Ayrıca yeni eklenecek değişken uint8_t veya char tipinden başka tip kullanılamaz.
+ *  Ayrıca yeni eklenecek değişken uint8_t veya char tipinden başka tip kullanılamaz.  //...?????
  *	Eepromdan veriler okunurken bu sıralama ile veriler atanmaktadır.
  *  Yeni degisken eklernirken sadece Can_Route_Values_t degisken tanımı yapılıp eepromda "24lc01Eeprom.h" 'a adresi eklenmesi yeterlidir.
  *
@@ -100,15 +106,14 @@ typedef struct
 	uint8_t Is_Route_Enable;
 
 	// can route'da output oldugunda nasıl veri gönderilecegini belirler
-	Can_Ext_For_Output_Flg_t Can_A_ext_flg;
-	Can_Id_Modes_For_Change_t Can_A_id_mode;
+	uint8_t Handle_If_Received_Std_Id_Msg;              // This parameter can be a value of @ref Handles_Received_Id
+	uint8_t Std_Auxiliary_Variable;
 
-	Can_Ext_For_Output_Flg_t Can_B_ext_flg;
-	Can_Id_Modes_For_Change_t Can_B_id_mode;
+	uint8_t Handle_If_Received_Ext_Id_Msg;              // This parameter can be a value of @ref Handles_Received_Id
+	uint8_t Ext_Auxiliary_Variable;
 	/*****************************************************************/
 	/* VARIABLES CODE BEGIN */
 	/*****************************************************************/
-
 
 	torkCanMsgRingBuf_t Route_Ring_Buf;
 	torkCanMsg Can_Msg_Queue[MAX_BUFFER_DEPTH]; // to store can msg arrays for ring buffers
@@ -136,4 +141,6 @@ void Parse_Msg_From_USB_and_Write_Data_To_EEPROM(int num_of_data, int offset_of_
 
 uint16_t Calculate_Crc(unsigned char *data, int length);
 
+uint32_t Handle_ID_Before_Transmit(Can_Route_Values_t route, uint32_t Identifier, uint32_t IdType);
+uint32_t Handle_IdType_Before_Transmit(Can_Route_Values_t route, uint32_t IdType);
 #endif /* INC_BASICAPP_H_ */
