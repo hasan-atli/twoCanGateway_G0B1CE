@@ -18,26 +18,28 @@
  *        des: Handles that can be done to the ID of received msg
   * @{
   */
-#define	_BRIDGE_MODE_                        ((uint8_t)0x00U)     /** mesajın id si ne ise değiştirmeden direk aynı sekilde gönder. **/
+#define	_NONE_                               ((uint8_t)0x00U)     /**  **/
 
-#define	_CONVERT_STD_AS_SAME_VALUE           ((uint8_t)0x01U)     /** gelen mesajın id ext ise std gibi gönder. Büyüklük olarak id degeri aynı kalacaktır.
+#define	_BRIDGE_MODE_                        ((uint8_t)0x01U)     /** mesajın id si ne ise değiştirmeden direk aynı sekilde gönder. **/
+
+#define	_CONVERT_STD_AS_SAME_VALUE           ((uint8_t)0x02U)     /** gelen mesajın id ext ise std gibi gönder. Büyüklük olarak id degeri aynı kalacaktır.
 																      Std gelirse direk gönder.  **/
 
-#define	_CONVERT_STD_BY_18_SHIFTING_BITS     ((uint8_t)0x02U)     /** gelen mesajın id ext ise 18 bit sağa kaydırarak std şeklinde gönder .
+#define	_CONVERT_STD_BY_18_SHIFTING_BITS     ((uint8_t)0x03U)     /** gelen mesajın id ext ise 18 bit sağa kaydırarak std şeklinde gönder .
 																       Std gelirse direk gönder. **/
 
-#define	_ADD_AUXILIARY_VAR_                  ((uint8_t)0x03U)     /**  Ek deger ile gelen id yi topla sonucu gönder. **/
+#define	_ADD_AUXILIARY_VAR_                  ((uint8_t)0x04U)     /**  Ek deger ile gelen id yi topla sonucu gönder. **/
 
-#define	_SHIFT_RIGHT_AUXILIARY_VAR_BITS_     ((uint8_t)0x04U)     /**  Ek deger kadar gelen id'yi saga kaydır ve sonucu gönder. **/
+#define	_SHIFT_RIGHT_AUXILIARY_VAR_BITS_     ((uint8_t)0x05U)     /**  Ek deger kadar gelen id'yi saga kaydır ve sonucu gönder. **/
 
-#define	_SHIFT_LEFT_AUXILIARY_VAR_BITS_      ((uint8_t)0x05U)     /**  Ek deger ile gelen id'yi  sola kaydır vea sonucu gönder. **/
+#define	_SHIFT_LEFT_AUXILIARY_VAR_BITS_      ((uint8_t)0x06U)     /**  Ek deger ile gelen id'yi  sola kaydır vea sonucu gönder. **/
 
 
-#define	_CONVERT_EXT_AS_SAME_VALUE           ((uint8_t)0x06U)    /** gelen mesajın id std ise ext gibi gönder. Büyüklük olarak id degeri aynı kalacaktır.
+#define	_CONVERT_EXT_AS_SAME_VALUE           ((uint8_t)0x07U)    /** gelen mesajın id std ise ext gibi gönder. Büyüklük olarak id degeri aynı kalacaktır.
 																      Ext gelirse direk gönder.  **/
 
-#define	_CONVERT_EXT_BY_18_SHIFTING_BITS     ((uint8_t)0x07U)    /** gelen mesajın id std ise 18 bit sola kaydırarak ext şeklinde gönder .
-														       Ext gelirse direk gönder. **/
+#define	_CONVERT_EXT_BY_18_SHIFTING_BITS     ((uint8_t)0x08U)    /** gelen mesajın id std ise 18 bit sola kaydırarak ext şeklinde gönder .
+														              Ext gelirse direk gönder. **/
 /**
   * @}
   */
@@ -106,11 +108,17 @@ typedef struct
 	uint8_t Is_Route_Enable;
 
 	// can route'da output oldugunda nasıl veri gönderilecegini belirler
-	uint8_t Handle_If_Received_Std_Id_Msg;              // This parameter can be a value of @ref Handles_Received_Id
-	uint8_t Std_Auxiliary_Variable;
+	uint8_t First_Method_If_Received_Std_Id_Msg;              // This parameter can be a value of @ref Handles_Received_Id
+	uint8_t First_Std_Auxiliary_Variable;
 
-	uint8_t Handle_If_Received_Ext_Id_Msg;              // This parameter can be a value of @ref Handles_Received_Id
-	uint8_t Ext_Auxiliary_Variable;
+	uint8_t First_Method_If_Received_Ext_Id_Msg;              // This parameter can be a value of @ref Handles_Received_Id
+	uint8_t First_Ext_Auxiliary_Variable;
+
+	uint8_t Second_Method_If_Received_Std_Id_Msg;              // This parameter can be a value of @ref Handles_Received_Id
+	uint8_t Second_Std_Auxiliary_Variable;
+
+	uint8_t Second_Method_If_Received_Ext_Id_Msg;              // This parameter can be a value of @ref Handles_Received_Id
+	uint8_t Second_Ext_Auxiliary_Variable;
 	/*****************************************************************/
 	/* VARIABLES CODE BEGIN */
 	/*****************************************************************/

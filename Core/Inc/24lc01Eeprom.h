@@ -70,21 +70,24 @@
  * bu degerler eeproma yazma okuma sırasında bazı fonksiyonlar tarafından kullanılmkatdır.
  * Bu fonk. Read_All_Eeprom(), Parse_Msg_From_USB_and_Write_Data_To_EEPROM(), Read_A_Section_of_Eeprom(), Write_Route_Value_EEPROM() güncellenme gerektirmez.
  *------------------------------------------------------*/
-#define NUM_OF_CONST_ROUTE_ONE_VALUE                        5
+#define NUM_OF_CONST_ROUTE_ONE_VALUE                                 9
 
-#define ADDR_OFFSET_ROUTE_ONE                               50
+#define ADDR_OFFSET_ROUTE_ONE                                        50
 
-#define ADDR_ROUTE_ONE_ENABLE                               ADDR_OFFSET_ROUTE_ONE + 1
+#define ADDR_ROUTE_ONE_ENABLE                                         ADDR_OFFSET_ROUTE_ONE + 1
 
-#define ADDR_IF_RECEIVED_STD_ID_MSG_IN_ONE_ROUTE            ADDR_OFFSET_ROUTE_ONE + 2
-#define ADDR_ADD_VARIABLE_RECEIVED_STD_ID_ONE_ROUTE         ADDR_OFFSET_ROUTE_ONE + 3
+#define ADDR_1st_METHOD_TO_BE_IF_RECEIVED_STD_ID_MSG_IN_ONE_ROUTE     ADDR_OFFSET_ROUTE_ONE + 2
+#define ADDR_1st_ADD_VARIABLE_RECEIVED_STD_ID_ONE_ROUTE               ADDR_OFFSET_ROUTE_ONE + 3
+#define ADDR_1st_METHOD_TO_BE_IF_RECEIVED_EXT_ID_MSG_IN_ONE_ROUTE     ADDR_OFFSET_ROUTE_ONE + 4
+#define ADDR_1st_ADD_VARIABLE_RECEIVED_EXT_ID_ONE_ROUTE               ADDR_OFFSET_ROUTE_ONE + 5
 
-#define ADDR_IF_RECEIVED_EXT_ID_MSG_IN_ONE_ROUTE            ADDR_OFFSET_ROUTE_ONE + 4
-#define ADDR_ADD_VARIABLE_RECEIVED_EXT_ID_ONE_ROUTE         ADDR_OFFSET_ROUTE_ONE + 5
+#define ADDR_2st_METHOD_TO_BE_IF_RECEIVED_STD_ID_MSG_IN_ONE_ROUTE     ADDR_OFFSET_ROUTE_ONE + 6
+#define ADDR_2st_ADD_VARIABLE_RECEIVED_STD_ID_ONE_ROUTE               ADDR_OFFSET_ROUTE_ONE + 7
+#define ADDR_2st_METHOD_TO_BE_IF_RECEIVED_EXT_ID_MSG_IN_ONE_ROUTE     ADDR_OFFSET_ROUTE_ONE + 8
+#define ADDR_2st_ADD_VARIABLE_RECEIVED_EXT_ID_ONE_ROUTE               ADDR_OFFSET_ROUTE_ONE + 9
 
-
-#define ADDR_CRC_Route1_L                                   ADDR_OFFSET_ROUTE_ONE + 6
-#define ADDR_CRC_Route1_H                                   ADDR_OFFSET_ROUTE_ONE + 7
+#define ADDR_CRC_Route1_L                                             ADDR_OFFSET_ROUTE_ONE + 10
+#define ADDR_CRC_Route1_H                                             ADDR_OFFSET_ROUTE_ONE + 11
 /*-----------------------------------------------------------------*/
 
 
@@ -96,20 +99,24 @@
  * bu degerler eeproma yazma okuma sırasında bazı fonksiyonlar tarafından kullanılmkatdır.
  * Bu fonk. Read_All_Eeprom(), Parse_Msg_From_USB_and_Write_Data_To_EEPROM(), Read_A_Section_of_Eeprom(), Write_Route_Value_EEPROM() güncellenme gerektirmez.
  *------------------------------------------------------------------*/
-#define NUM_OF_CONST_ROUTE_TWO_VALUE                   5
+#define NUM_OF_CONST_ROUTE_TWO_VALUE                                  9
 
-#define ADDR_OFFSET_ROUTE_TWO                          80
+#define ADDR_OFFSET_ROUTE_TWO                                         80
 
-#define ADDR_ROUTE_TWO_ENABLE                          ADDR_OFFSET_ROUTE_TWO + 1
+#define ADDR_ROUTE_TWO_ENABLE                                         ADDR_OFFSET_ROUTE_TWO + 1
 
-#define ADDR_IF_RECEIVED_STD_ID_MSG_IN_TWO_ROUTE       ADDR_OFFSET_ROUTE_TWO + 2
-#define ADDR_ADD_VARIABLE_RECEIVED_STD_ID_TWO_ROUTE    ADDR_OFFSET_ROUTE_TWO + 3
+#define ADDR_1st_METHOD_TO_BE_IF_RECEIVED_STD_ID_MSG_IN_TWO_ROUTE     ADDR_OFFSET_ROUTE_TWO + 2
+#define ADDR_1st_ADD_VARIABLE_RECEIVED_STD_ID_TWO_ROUTE               ADDR_OFFSET_ROUTE_TWO + 3
+#define ADDR_1st_METHOD_TO_BE_IF_RECEIVED_EXT_ID_MSG_IN_TWO_ROUTE     ADDR_OFFSET_ROUTE_TWO + 4
+#define ADDR_1st_ADD_VARIABLE_RECEIVED_EXT_ID_TWO_ROUTE               ADDR_OFFSET_ROUTE_TWO + 5
 
-#define ADDR_IF_RECEIVED_EXT_ID_MSG_IN_TWO_ROUTE       ADDR_OFFSET_ROUTE_TWO + 4
-#define ADDR_ADD_VARIABLE_RECEIVED_EXT_ID_TWO_ROUTE    ADDR_OFFSET_ROUTE_TWO + 5
+#define ADDR_2st_METHOD_TO_BE_IF_RECEIVED_STD_ID_MSG_IN_TWO_ROUTE     ADDR_OFFSET_ROUTE_TWO + 6
+#define ADDR_2st_ADD_VARIABLE_RECEIVED_STD_ID_TWO_ROUTE               ADDR_OFFSET_ROUTE_TWO + 7
+#define ADDR_2st_METHOD_TO_BE_IF_RECEIVED_EXT_ID_MSG_IN_TWO_ROUTE     ADDR_OFFSET_ROUTE_TWO + 8
+#define ADDR_2st_ADD_VARIABLE_RECEIVED_EXT_ID_TWO_ROUTE               ADDR_OFFSET_ROUTE_TWO + 9
 
-#define ADDR_CRC_Route2_L                              ADDR_OFFSET_ROUTE_TWO + 6
-#define ADDR_CRC_Route2_H                              ADDR_OFFSET_ROUTE_TWO + 7
+#define ADDR_CRC_Route2_L                                             ADDR_OFFSET_ROUTE_TWO + 10
+#define ADDR_CRC_Route2_H                                             ADDR_OFFSET_ROUTE_TWO + 11
 /*------------------------------------------------------------------*/
 
 /*****************************************************************************************************************************************/
