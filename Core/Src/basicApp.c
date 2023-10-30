@@ -792,64 +792,168 @@ uint32_t Handle_ID_Before_Transmit(Can_Route_Values_t route, uint32_t Identifier
 {
 	if (IdType == FDCAN_STANDARD_ID)
 	{
-		switch (route.Handle_If_Received_Std_Id_Msg)
+		switch (route.First_Method_If_Received_Std_Id_Msg)
 		{
 		case _BRIDGE_MODE_:
 			return Identifier;
 			break;
 
 		case _CONVERT_EXT_AS_SAME_VALUE:
-			return Identifier;
+			if(route.Second_Method_If_Received_Std_Id_Msg == _NONE_)
+			{
+				return Identifier;
+			}
+			else if(route.Second_Method_If_Received_Std_Id_Msg == _ADD_AUXILIARY_VAR_)
+			{
+				return Identifier + route.Second_Std_Auxiliary_Variable;
+			}
+			else if(route.Second_Method_If_Received_Std_Id_Msg == _SHIFT_RIGHT_AUXILIARY_VAR_BITS_)
+			{
+				return Identifier >> route.Second_Std_Auxiliary_Variable;
+			}
+			else if(route.Second_Method_If_Received_Std_Id_Msg == _SHIFT_LEFT_AUXILIARY_VAR_BITS_)
+			{
+				return Identifier << route.Second_Std_Auxiliary_Variable;
+			}
+			else
+			{
+				return Identifier;
+			}
 			break;
 
 		case _CONVERT_EXT_BY_18_SHIFTING_BITS: //sol
-			return Identifier << 18;
-			break;
-
-		case _ADD_AUXILIARY_VAR_:
-			return Identifier + route.Std_Auxiliary_Variable;
+			if(route.Second_Method_If_Received_Std_Id_Msg == _NONE_)
+			{
+				return Identifier << 18;
+			}
+			else if(route.Second_Method_If_Received_Std_Id_Msg == _ADD_AUXILIARY_VAR_)
+			{
+				return (Identifier << 18) + route.Second_Std_Auxiliary_Variable;
+			}
+			else
+			{
+				return Identifier << 18;
+			}
 			break;
 
 		case _SHIFT_RIGHT_AUXILIARY_VAR_BITS_:
-			return Identifier >> route.Std_Auxiliary_Variable;
+			if(route.Second_Method_If_Received_Std_Id_Msg == _NONE_)
+			{
+				return Identifier >> route.First_Std_Auxiliary_Variable;
+			}
+			else if(route.Second_Method_If_Received_Std_Id_Msg == _ADD_AUXILIARY_VAR_)
+			{
+				return (Identifier >> route.First_Std_Auxiliary_Variable) + route.Second_Std_Auxiliary_Variable;
+			}
+			else
+			{
+				return Identifier >> route.First_Std_Auxiliary_Variable;
+			}
 			break;
 
 		case _SHIFT_LEFT_AUXILIARY_VAR_BITS_:
-			return Identifier << route.Std_Auxiliary_Variable;
+			if(route.Second_Method_If_Received_Std_Id_Msg == _NONE_)
+			{
+				return Identifier << route.First_Std_Auxiliary_Variable;
+			}
+			else if(route.Second_Method_If_Received_Std_Id_Msg == _ADD_AUXILIARY_VAR_)
+			{
+				return (Identifier << route.First_Std_Auxiliary_Variable) + route.Second_Std_Auxiliary_Variable;
+			}
+			else
+			{
+				return Identifier << route.First_Std_Auxiliary_Variable;
+			}
+			break;
+
+		case _ADD_AUXILIARY_VAR_:
+			return Identifier + route.First_Std_Auxiliary_Variable;
 			break;
 
 		default:
 			return Identifier;
 			break;
 		}
-
 	}
 	else
 	{
-		switch (route.Handle_If_Received_Ext_Id_Msg)
+		switch (route.First_Method_If_Received_Ext_Id_Msg)
 		{
 		case _BRIDGE_MODE_:
 			return Identifier;
 			break;
 
 		case _CONVERT_STD_AS_SAME_VALUE:
-			return Identifier;
+
+			if(route.Second_Method_If_Received_Ext_Id_Msg == _NONE_)
+			{
+				return Identifier;
+			}
+			else if(route.Second_Method_If_Received_Ext_Id_Msg == _SHIFT_RIGHT_AUXILIARY_VAR_BITS_)
+			{
+				return Identifier >> route.Second_Ext_Auxiliary_Variable;
+			}
+			else if(route.Second_Method_If_Received_Ext_Id_Msg == _SHIFT_LEFT_AUXILIARY_VAR_BITS_)
+			{
+				return Identifier << route.Second_Ext_Auxiliary_Variable;
+			}
+			else if(route.Second_Method_If_Received_Ext_Id_Msg == _ADD_AUXILIARY_VAR_)
+			{
+				return Identifier + route.Second_Ext_Auxiliary_Variable;
+			}
+			else
+			{
+				return Identifier;
+			}
 			break;
 
 		case _CONVERT_STD_BY_18_SHIFTING_BITS:
-			return Identifier >> 18;  //saga
-			break;
-
-		case _ADD_AUXILIARY_VAR_:
-			return Identifier + route.Std_Auxiliary_Variable;
+			if(route.Second_Method_If_Received_Ext_Id_Msg == _NONE_)
+			{
+				return Identifier >> 18;
+			}
+			else if(route.Second_Method_If_Received_Ext_Id_Msg == _ADD_AUXILIARY_VAR_)
+			{
+				return (Identifier >> 18) + route.Second_Ext_Auxiliary_Variable;
+			}
+			else
+			{
+				return Identifier >> 18;
+			}
 			break;
 
 		case _SHIFT_RIGHT_AUXILIARY_VAR_BITS_:
-			return Identifier >> route.Std_Auxiliary_Variable;
+			if(route.Second_Method_If_Received_Ext_Id_Msg == _NONE_)
+			{
+				return Identifier >> route.First_Ext_Auxiliary_Variable;
+			}
+			else if(route.Second_Method_If_Received_Ext_Id_Msg == _ADD_AUXILIARY_VAR_)
+			{
+				return (Identifier >> route.First_Ext_Auxiliary_Variable) + route.Second_Ext_Auxiliary_Variable;
+			}
+			else
+			{
+				return Identifier >> route.First_Ext_Auxiliary_Variable;
+			}
 			break;
 
 		case _SHIFT_LEFT_AUXILIARY_VAR_BITS_:
-			return Identifier << route.Std_Auxiliary_Variable;
+			if(route.Second_Method_If_Received_Ext_Id_Msg == _NONE_)
+			{
+				return Identifier << route.First_Ext_Auxiliary_Variable;
+			}
+			else if(route.Second_Method_If_Received_Ext_Id_Msg == _ADD_AUXILIARY_VAR_)
+			{
+				return (Identifier << route.First_Ext_Auxiliary_Variable) + route.Second_Ext_Auxiliary_Variable;
+			}
+			else
+			{
+				return Identifier << route.First_Ext_Auxiliary_Variable;
+			}
+			break;
+
+		case _ADD_AUXILIARY_VAR_:
+			return Identifier + route.First_Ext_Auxiliary_Variable;
 			break;
 
 		default:
@@ -870,7 +974,7 @@ uint32_t Handle_IdType_Before_Transmit(Can_Route_Values_t route, uint32_t IdType
 {
 	if (IdType == FDCAN_STANDARD_ID)
 	{
-		switch (route.Handle_If_Received_Std_Id_Msg)
+		switch (route.First_Method_If_Received_Std_Id_Msg)
 		{
 		case _BRIDGE_MODE_:
 			return IdType;
@@ -892,7 +996,7 @@ uint32_t Handle_IdType_Before_Transmit(Can_Route_Values_t route, uint32_t IdType
 	}
 	else
 	{
-		switch (route.Handle_If_Received_Ext_Id_Msg)
+		switch (route.First_Method_If_Received_Ext_Id_Msg)
 		{
 		case _BRIDGE_MODE_:
 			return IdType;
