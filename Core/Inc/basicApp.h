@@ -78,13 +78,23 @@ typedef enum {
  */
 typedef struct
 {
-	uint8_t FDFormat;                 /*!< Specifies whether the Tx frame will be transmitted in classic or FD format.
-								           This parameter can be a value of @ref FDCAN_format*/
+	uint32_t FDFormat;                        /*!< Specifies the FDCAN frame format.
+                                                   This parameter can be a value of @ref FDCAN_frame_format But the values is changed below
+                                                   0: FDCAN_FRAME_CLASSIC
+                                                   1: FDCAN_FRAME_FD_NO_BRS
+                                                   2: FDCAN_FRAME_FD_BRS    */
 	BITTIME_SETUP can_nominal_bitrate;
 
 	BITTIME_SETUP can_data_bitrate;
 
+	uint8_t             std_filter_nmr;
+	FDCAN_FilterTypeDef std_filters[MAX_STD_FILTER_NUM];    /* arrayın index numarası ile filterlerin FilterIndex'ı aynı olacaktır. yani ilk uygulanacak filtre std_filters[0]'dır. */
+
+	uint8_t             ext_filter_nmr;
+	FDCAN_FilterTypeDef ext_filters[MAX_EXT_FILTER_NUM];    /* arrayın index numarası ile filterlerin FilterIndex'ı aynı olacaktır. yani ilk uygulanacak filtre std_filters[0]'dır. */
+
 }Can_Eeprom_Values_t;
+
 
 /**
  * @Can_Route_Values_t
@@ -133,21 +143,29 @@ void Init_CanA();
 void Init_CanB();
 
 //for eeprom
-void Init_Eeprom();
-int Get_Eeprom_Adr();
-void Read_All_Eeprom();
-_Bool Write_Route_Value_EEPROM(uint8_t offset_address_eeprom, uint8_t* sourceBuffer, int sizeOfDataToWritten);
+void  Init_Eeprom();
+int   Get_Eeprom_Adr();
+void  Read_All_Eeprom();
+_Bool Write_8Bit_Values_a_Section_of_Eeprom(uint32_t offset_address_eeprom, uint8_t* sourceBuffer, int sizeOfDataToWritten);
+_Bool Write_32Bit_Values_a_Section_of_Eeprom(uint32_t offset_address_eeprom, uint32_t* sourceBuffer, int sizeOfDataToWritten);
+void  Read_8Bit_a_Section_of_Eeprom(uint8_t* addressOfArray, uint32_t offset_address_of_section_of_eeprom, int number_of_data_to_read);
+void  Read_32Bit_a_Section_of_Eeprom(uint32_t* addressOfArray, uint32_t offset_address_of_section_of_eeprom, int number_of_data_to_read);
+void  Read_Route_Eeprom(Can_Route_Values_t* route, int offset_address_eeprom, uint8_t number_of_data_to_read);
 
 
-void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTIME_SETUP nominalBitrate, BITTIME_SETUP dataBitrate);
+void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTIME_SETUP nominalBitrate, BITTIME_SETUP dataBitrate, uint32_t StdFiltersNbr, uint32_t ExtFiltersNbr);
+void Set_Stm_Can_Filters(FDCAN_HandleTypeDef* hfdcan, Can_Eeprom_Values_t* canVal);
 
 void Handle_USB_Messages();
-int Parse_Data_From_USB_Buffer(uint8_t* destinationBuf, char* usbBuf, int sizeUsbBuf);
-void Read_Route_Eeprom(Can_Route_Values_t* route, uint8_t offset_address_eeprom, uint8_t number_of_data_to_read);
-void Read_a_Section_of_Eeprom(uint8_t* addressOfArray, uint8_t offset_address_of_section_of_eeprom, uint8_t number_of_data_to_read);
-void Parse_Msg_From_USB_and_Write_Data_To_EEPROM(int num_of_data, int offset_of_data);
+int  Parse_8bit_Data_From_USB_Buffer(uint8_t* destinationBuf, char* usbBuf, int sizeUsbBuf);
+void Parse_8bit_Msg_From_USB_and_Write_Data_To_EEPROM(int num_of_data, int offset_of_data);
+int  Parse_32bit_Data_From_USB_Buffer(uint32_t* destinationBuf, char* usbBuf, int sizeUsbBuf);
+void Parse_32_bit_Msg_From_USB_and_Write_Data_To_EEPROM(int num_of_data, int offset_of_data);
+uint16_t Calculate_Crc_16(unsigned char *data, int length);
+uint32_t Calculate_Crc_32(uint32_t *data, int length);
+uint64_t Calculate_Crc_64(uint32_t *data, int length);
 
-uint16_t Calculate_Crc(unsigned char *data, int length);
+
 
 uint32_t Handle_ID_Before_Transmit(Can_Route_Values_t route, uint32_t Identifier, uint32_t IdType);
 uint32_t Handle_IdType_Before_Transmit(Can_Route_Values_t route, uint32_t IdType);

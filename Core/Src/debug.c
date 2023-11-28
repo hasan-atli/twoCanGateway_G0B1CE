@@ -40,3 +40,12 @@ void dbgDumpHex(uint8_t *buffer, int bufferSize)
 	}
 	dbgPrint("\n");
 }
+
+void dbgDumpHex32(uint32_t *buffer, int bufferSize)
+{
+	for (int i = 0; i < bufferSize; i++)
+	{
+		dbgPrintf(" %02X", buffer[i]);
+	}
+	dbgPrint("\n");
+}

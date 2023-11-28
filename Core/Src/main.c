@@ -63,9 +63,9 @@ uint32_t last_time = 0;
 
 /***************************************************************************************************/
 // for Uart Rx Irq
-char    uartRxData[64];		                     //Receive Data Buffer
-uint8_t uartRxIntData[64];	                     //Receive Data Interrupt Buffer (temp)
-volatile bool isDataReceived = false;		 //Callback tamamlandi mi?, kontrol flag
+char    uartRxData[254];		                  //Receive Data Buffer
+uint8_t uartRxIntData[254];	                      //Receive Data Interrupt Buffer (temp)
+volatile bool isDataReceived = false;		      //Callback tamamlandi mi?, kontrol flag
 /***************************************************************************************************/
 
 
@@ -110,6 +110,8 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C1_Init(void);
+//static void MX_FDCAN1_Init(void);
+//static void MX_FDCAN2_Init(void);
 /* USER CODE BEGIN PFP */
 void isPressedBtn();
 void heartBeat();
@@ -151,8 +153,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_I2C1_Init();
-//MX_FDCAN1_Init();
-//MX_FDCAN2_Init();
+  MX_FDCAN1_Init();
+  MX_FDCAN2_Init();
   MX_USB_Device_Init();
   /* USER CODE BEGIN 2 */
   /***************************************************************************************************/
@@ -160,7 +162,6 @@ int main(void)
 	Init_Basic_App();
 
 	HAL_UARTEx_ReceiveToIdle_IT(&huart1, uartRxIntData, sizeof(uartRxIntData));   //...test icin
-
 	debugPrint("/* USER CODE  END  2 */\n");
   /***************************************************************************************************/
 
@@ -313,19 +314,19 @@ void MX_FDCAN1_Init(void)
   /* USER CODE END FDCAN1_Init 1 */
   hfdcan1.Instance = FDCAN1;
   hfdcan1.Init.ClockDivider = FDCAN_CLOCK_DIV1;
-//  hfdcan1.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
+  hfdcan1.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
   hfdcan1.Init.Mode = FDCAN_MODE_NORMAL;
   hfdcan1.Init.AutoRetransmission = DISABLE;
   hfdcan1.Init.TransmitPause = DISABLE;
   hfdcan1.Init.ProtocolException = DISABLE;
-//  hfdcan1.Init.NominalPrescaler = 1;
-//  hfdcan1.Init.NominalSyncJumpWidth = 111;
-//  hfdcan1.Init.NominalTimeSeg1 = 111;
-//  hfdcan1.Init.NominalTimeSeg2 = 3;
-//  hfdcan1.Init.DataPrescaler = 1;
-//  hfdcan1.Init.DataSyncJumpWidth = 16;
-//  hfdcan1.Init.DataTimeSeg1 = 27;
-//  hfdcan1.Init.DataTimeSeg2 = 4;
+  hfdcan1.Init.NominalPrescaler = 1;
+  hfdcan1.Init.NominalSyncJumpWidth = 111;
+  hfdcan1.Init.NominalTimeSeg1 = 111;
+  hfdcan1.Init.NominalTimeSeg2 = 3;
+  hfdcan1.Init.DataPrescaler = 1;
+  hfdcan1.Init.DataSyncJumpWidth = 16;
+  hfdcan1.Init.DataTimeSeg1 = 27;
+  hfdcan1.Init.DataTimeSeg2 = 4;
   hfdcan1.Init.StdFiltersNbr = 0;
   hfdcan1.Init.ExtFiltersNbr = 0;
   hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
@@ -344,7 +345,7 @@ void MX_FDCAN1_Init(void)
   * @param None
   * @retval None
   */
-void MX_FDCAN2_Init(void)
+MX_FDCAN2_Init(void)
 {
 
   /* USER CODE BEGIN FDCAN2_Init 0 */
@@ -356,19 +357,19 @@ void MX_FDCAN2_Init(void)
   /* USER CODE END FDCAN2_Init 1 */
   hfdcan2.Instance = FDCAN2;
   hfdcan2.Init.ClockDivider = FDCAN_CLOCK_DIV1;
-//  hfdcan2.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
+  hfdcan2.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
   hfdcan2.Init.Mode = FDCAN_MODE_NORMAL;
   hfdcan2.Init.AutoRetransmission = DISABLE;
   hfdcan2.Init.TransmitPause = DISABLE;
   hfdcan2.Init.ProtocolException = DISABLE;
-//  hfdcan2.Init.NominalPrescaler = 1;
-//  hfdcan2.Init.NominalSyncJumpWidth = 3;
-//  hfdcan2.Init.NominalTimeSeg1 = 28;
-//  hfdcan2.Init.NominalTimeSeg2 = 3;
-//  hfdcan2.Init.DataPrescaler = 1;
-//  hfdcan2.Init.DataSyncJumpWidth = 4;
-//  hfdcan2.Init.DataTimeSeg1 = 27;
-//  hfdcan2.Init.DataTimeSeg2 = 4;
+  hfdcan2.Init.NominalPrescaler = 1;
+  hfdcan2.Init.NominalSyncJumpWidth = 3;
+  hfdcan2.Init.NominalTimeSeg1 = 28;
+  hfdcan2.Init.NominalTimeSeg2 = 3;
+  hfdcan2.Init.DataPrescaler = 1;
+  hfdcan2.Init.DataSyncJumpWidth = 4;
+  hfdcan2.Init.DataTimeSeg1 = 27;
+  hfdcan2.Init.DataTimeSeg2 = 4;
   hfdcan2.Init.StdFiltersNbr = 0;
   hfdcan2.Init.ExtFiltersNbr = 0;
   hfdcan2.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
@@ -686,15 +687,15 @@ void handleReceivedDataFromUart()
 		{
 			debugPrint("canfd_brs mesaji gonderiliyor...");
 		}
-		else if(!strncmp("CRC,", uartRxData, 4))
+		else if(!strncmp("CRC_oneSix", uartRxData, 10))
 		{
 			debugPrint("RxData:");
-			debugDumpHex((uint8_t*)uartRxData, 64);
+			debugDumpHex((uint8_t*)uartRxData, 128);
 
-			debugPrintf("crc hesaplanıyor...\n");
+			debugPrintf("crc_16 hesaplanıyor...\n");
 			uint8_t incomingData[32];
 
-			Parse_Data_From_USB_Buffer(incomingData, uartRxData, 64);
+			Parse_8bit_Data_From_USB_Buffer(incomingData, uartRxData, 128);
 
 			int sizeOfBuf =  incomingData[0];
 			uint8_t data[sizeOfBuf];
@@ -709,22 +710,96 @@ void handleReceivedDataFromUart()
 			debugDumpHex(data, sizeOfBuf);
 
 			torkUInt16_VAL _CRC_;
-			_CRC_.Val = Calculate_Crc(data, sizeOfBuf);
+			_CRC_.Val = Calculate_Crc_16(data, sizeOfBuf);
 
 			debugPrintf("crc L: %d\n", _CRC_.Byte[0]);
 			debugPrintf("crc H: %d\n", _CRC_.Byte[1]);
 		}
-		else if (!strncmp("test1,", uartRxData, 5))
+		else if (!strncmp("test1", uartRxData, 5))
 		{
 			//can config set
-			debugPrintf("canA_Values.FDFormat: %d\n",             canA_Values.FDFormat);
-			debugPrintf("canA_Values.can_nominal_bitratet: %d\n", canA_Values.can_nominal_bitrate);
-			debugPrintf("canA_Values.can_data_bitrate: %d\n",     canA_Values.can_data_bitrate);
+			debugPrintf("canA_Values.FDFormat: %d\n",                  canA_Values.FDFormat);
+			debugPrintf("canA_Values.can_nominal_bitratet: %d\n",      canA_Values.can_nominal_bitrate);
+			debugPrintf("canA_Values.can_data_bitrate: %d\n",          canA_Values.can_data_bitrate);
+			debugPrintf("ADDR_CAN_A_STD_FLTER_NUM.: %d\n",             canA_Values.std_filter_nmr);
+			debugPrintf("ADDR_CAN_A_1st_STD_FILTER_TYPE.: %d\n",       canA_Values.std_filters[0].FilterType);
+			debugPrintf("ADDR_CAN_A_1st_STD_FILTER_CONFIG.: %d\n",     canA_Values.std_filters[0].FilterConfig);
+			debugPrintf("ADDR_CAN_A_2st_STD_FILTER_TYPE.: %d\n",       canA_Values.std_filters[1].FilterType);
+			debugPrintf("ADDR_CAN_A_2st_STD_FILTER_CONFIG.: %d\n",     canA_Values.std_filters[1].FilterConfig);
+			debugPrintf("ADDR_CAN_A_3st_STD_FILTER_TYPE.: %d\n",       canA_Values.std_filters[2].FilterType);
+			debugPrintf("ADDR_CAN_A_3st_STD_FILTER_CONFIG.: %d\n",     canA_Values.std_filters[2].FilterConfig);
+			debugPrintf("ADDR_CAN_A_EXT_FLTER_NUM.: %d\n",             canA_Values.ext_filter_nmr);
+			debugPrintf("ADDR_CAN_A_1st_EXT_FILTER_TYPE.: %d\n",       canA_Values.ext_filters[0].FilterType);
+			debugPrintf("ADDR_CAN_A_1st_EXT_FILTER_CONFIG.: %d\n",     canA_Values.ext_filters[0].FilterConfig);
+			debugPrintf("ADDR_CAN_A_2st_EXT_FILTER_TYPE.: %d\n",       canA_Values.ext_filters[1].FilterType);
+			debugPrintf("ADDR_CAN_A_2st_EXT_FILTER_CONFIG.: %d\n",     canA_Values.ext_filters[1].FilterConfig);
+			debugPrintf("ADDR_CAN_A_3st_EXT_FILTER_TYPE.: %d\n",       canA_Values.ext_filters[2].FilterType);
+			debugPrintf("ADDR_CAN_A_3st_EXT_FILTER_CONFIG.: %d\n",     canA_Values.ext_filters[2].FilterConfig);
 
-			debugPrintf("canB_Values.FDFormat: %d\n",             canB_Values.FDFormat);
-			debugPrintf("canB_Values.can_nominal_bitrate: %d\n",  canB_Values.can_nominal_bitrate);
-			debugPrintf("canB_Values.can_data_bitrate: %d\n",     canB_Values.can_data_bitrate);
+			debugPrintf("\n");
 
+			//can config set
+			debugPrintf("canB_Values.FDFormat: %d\n",                  canB_Values.FDFormat);
+			debugPrintf("canB_Values.can_nominal_bitratet: %d\n",      canB_Values.can_nominal_bitrate);
+			debugPrintf("canB_Values.can_data_bitrate: %d\n",          canB_Values.can_data_bitrate);
+			debugPrintf("ADDR_CAN_B_STD_FLTER_NUM.: %d\n",             canB_Values.std_filter_nmr);
+			debugPrintf("ADDR_CAN_B_1st_STD_FILTER_TYPE.: %d\n",       canB_Values.std_filters[0].FilterType);
+			debugPrintf("ADDR_CAN_B_1st_STD_FILTER_CONFIG.: %d\n",     canB_Values.std_filters[0].FilterConfig);
+			debugPrintf("ADDR_CAN_B_2st_STD_FILTER_TYPE.: %d\n",       canB_Values.std_filters[1].FilterType);
+			debugPrintf("ADDR_CAN_B_2st_STD_FILTER_CONFIG.: %d\n",     canB_Values.std_filters[1].FilterConfig);
+			debugPrintf("ADDR_CAN_B_3st_STD_FILTER_TYPE.: %d\n",       canB_Values.std_filters[2].FilterType);
+			debugPrintf("ADDR_CAN_B_3st_STD_FILTER_CONFIG.: %d\n",     canB_Values.std_filters[2].FilterConfig);
+			debugPrintf("ADDR_CAN_B_EXT_FLTER_NUM.: %d\n",             canB_Values.ext_filter_nmr);
+			debugPrintf("ADDR_CAN_B_1st_EXT_FILTER_TYPE.: %d\n",       canB_Values.ext_filters[0].FilterType);
+			debugPrintf("ADDR_CAN_B_1st_EXT_FILTER_CONFIG.: %d\n",     canB_Values.ext_filters[0].FilterConfig);
+			debugPrintf("ADDR_CAN_B_2st_EXT_FILTER_TYPE.: %d\n",       canB_Values.ext_filters[1].FilterType);
+			debugPrintf("ADDR_CAN_B_2st_EXT_FILTER_CONFIG.: %d\n",     canB_Values.ext_filters[1].FilterConfig);
+			debugPrintf("ADDR_CAN_B_3st_EXT_FILTER_TYPE.: %d\n",       canB_Values.ext_filters[2].FilterType);
+			debugPrintf("ADDR_CAN_B_3st_EXT_FILTER_CONFIG.: %d\n",     canB_Values.ext_filters[2].FilterConfig);
+
+
+			debugPrintf("\n\n\n");
+
+
+			//can a filter
+			debugPrintf("ADRR_CAN_A_1st_Std_FilterID1: %d\n",     canA_Values.std_filters[0].FilterID1);
+			debugPrintf("ADRR_CAN_A_1st_Std_FilterID2: %d\n",     canA_Values.std_filters[0].FilterID2);
+			debugPrintf("ADRR_CAN_A_2st_Std_FilterID1: %d\n",     canA_Values.std_filters[1].FilterID1);
+			debugPrintf("ADRR_CAN_A_2st_Std_FilterID2: %d\n",     canA_Values.std_filters[1].FilterID2);
+			debugPrintf("ADRR_CAN_A_3st_Std_FilterID1: %d\n",     canA_Values.std_filters[2].FilterID1);
+			debugPrintf("ADRR_CAN_A_3st_Std_FilterID2: %d\n",     canA_Values.std_filters[2].FilterID2);
+
+			debugPrintf("\n");
+
+			debugPrintf("ADRR_CAN_A_1st_Ext_FilterID1: %d\n", canA_Values.ext_filters[0].FilterID1);
+			debugPrintf("ADRR_CAN_A_1st_Ext_FilterID2: %d\n", canA_Values.ext_filters[0].FilterID2);
+			debugPrintf("ADRR_CAN_A_2st_Ext_FilterID1: %d\n", canA_Values.ext_filters[1].FilterID1);
+			debugPrintf("ADRR_CAN_A_2st_Ext_FilterID2: %d\n", canA_Values.ext_filters[1].FilterID2);
+			debugPrintf("ADRR_CAN_A_3st_Ext_FilterID1: %d\n", canA_Values.ext_filters[2].FilterID1);
+			debugPrintf("ADRR_CAN_A_3st_Ext_FilterID2: %d\n", canA_Values.ext_filters[2].FilterID2);
+
+
+			debugPrintf("\n\n\n");
+
+
+			//can a filter
+			debugPrintf("ADRR_CAN_B_1st_Std_FilterID1: %d\n",     canB_Values.std_filters[0].FilterID1);
+			debugPrintf("ADRR_CAN_B_1st_Std_FilterID2: %d\n",     canB_Values.std_filters[0].FilterID2);
+			debugPrintf("ADRR_CAN_B_2st_Std_FilterID1: %d\n",     canB_Values.std_filters[1].FilterID1);
+			debugPrintf("ADRR_CAN_B_2st_Std_FilterID2: %d\n",     canB_Values.std_filters[1].FilterID2);
+			debugPrintf("ADRR_CAN_B_3st_Std_FilterID1: %d\n",     canB_Values.std_filters[2].FilterID1);
+			debugPrintf("ADRR_CAN_B_3st_Std_FilterID2: %d\n",     canB_Values.std_filters[2].FilterID2);
+
+			debugPrintf("\n");
+
+			debugPrintf("ADRR_CAN_B_1st_Ext_FilterID1: %d\n", canB_Values.ext_filters[0].FilterID1);
+			debugPrintf("ADRR_CAN_B_1st_Ext_FilterID2: %d\n", canB_Values.ext_filters[0].FilterID2);
+			debugPrintf("ADRR_CAN_B_2st_Ext_FilterID1: %d\n", canB_Values.ext_filters[1].FilterID1);
+			debugPrintf("ADRR_CAN_B_2st_Ext_FilterID2: %d\n", canB_Values.ext_filters[1].FilterID2);
+			debugPrintf("ADRR_CAN_B_3st_Ext_FilterID1: %d\n", canB_Values.ext_filters[2].FilterID1);
+			debugPrintf("ADRR_CAN_B_3st_Ext_FilterID2: %d\n", canB_Values.ext_filters[2].FilterID2);
+
+			debugPrintf("\n\n\n");
 
 //			//route 1
 //			debugPrintf("routeOne.Is_Route_Enable: %d\n", routeOne.Is_Route_Enable);
@@ -741,6 +816,155 @@ void handleReceivedDataFromUart()
 //
 //			debugPrintf("routeTwo.Can_B_ext_flg: %d\n", routeTwo.Can_B_ext_flg);
 //			debugPrintf("routeTwo.Can_B_id_mode: %d\n", routeTwo.Can_B_id_mode);
+
+
+//			char* __rxBufferUSB = "$FLTRID,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,11844,1624*";
+//
+//			//char __rxBufferUSB[] ={'$', 'F', 'L', 'T', 'R', 'I', 'D', ',' ,'1', ',',  '1', ',', '1', ',', '1', ',', '1', ',', '1', ',', '1', ',', '1', ',', '111', '222'};
+//
+//			uint32_t __incomingData[32];
+//
+//
+//			int __last_index = Parse_32bit_Data_From_USB_Buffer(__incomingData, __rxBufferUSB, 128);
+//
+//			debugPrintf("__last_index: %d", __last_index);
+//			debugPrintf(" __incomingData buffer daki veriler:  ");
+//			debugDumpHex32(__incomingData, 26);
+
+		}
+		else if (!strncmp("C_,", uartRxData, 3))
+		{
+			debugPrint("RxData:");
+			debugDumpHex((uint8_t* )uartRxData, 128);
+
+			debugPrintf("crc_32 hesaplanıyor...\n");
+			uint32_t incomingData[32];
+
+			Parse_32bit_Data_From_USB_Buffer(incomingData, uartRxData, 128);
+
+			int sizeOfBuf = incomingData[0];
+			uint32_t data[sizeOfBuf];
+
+			for (int i = 0; i < sizeOfBuf; i++)
+			{
+				data[i] = incomingData[i + 1];
+			}
+
+			debugPrintf("crc si hesaplanacak buffer size: %d \n", sizeOfBuf);
+			debugPrintf("crc si hesaplanacak buffer daki veriler:  ");
+			debugDumpHex32(data, sizeOfBuf);
+
+			torkUInt64_VAL _CRC_;
+			_CRC_.Val = Calculate_Crc_64(data, sizeOfBuf);
+
+			debugPrintf("crc L: %u\n", _CRC_.U32[0]);
+			debugPrintf("crc H: %u\n", _CRC_.U32[1]);
+
+		}
+		else if (!strncmp("Write64EEPROM", uartRxData, 13))
+		{
+//			EEPROM_byte_write(Get_Eeprom_Adr(), 100, 'a');
+//			HAL_Delay(500);
+//			EEPROM_byte_write(Get_Eeprom_Adr(), 101, 'a');
+//			HAL_Delay(500);
+//			EEPROM_byte_write(Get_Eeprom_Adr(), 102, 'a');
+//			HAL_Delay(500);
+//			EEPROM_byte_write(Get_Eeprom_Adr(), 103, 'a');
+//			HAL_Delay(500);
+//			EEPROM_byte_write(Get_Eeprom_Adr(), 104, 'a');
+//			HAL_Delay(500);
+//			EEPROM_byte_write(Get_Eeprom_Adr(), 105, 'a');
+//			HAL_Delay(500);
+
+			uint32_t sourceBuffer[14] = {
+					0xFFFFFFFF,
+					0x44444444,
+					0x55555555,
+					0x66666666,
+					0x77777777,
+					0x88888888,
+					0x99999999,
+					0xEEEEEEEE,
+					0xDDDDDDDD,
+					0xCCCCCCCC,
+					0xBBBBBBBB,
+					0xAAAAAAAA,
+					3559608707,
+					3559608707
+			};
+
+
+			debugPrintf("result:%d", Write_32Bit_Values_a_Section_of_Eeprom(ADDR_OFFSET_CAN_A_FILTER_ID, sourceBuffer,NUM_OF_CAN_A_FILTER_VAL + 2));
+
+
+
+		}
+		else if (!strncmp("Read64EEPROM", uartRxData, 12))
+		{
+			uint32_t buffer_to_read[12];
+
+			Read_32Bit_a_Section_of_Eeprom(buffer_to_read, ADDR_OFFSET_CAN_A_FILTER_ID, NUM_OF_CAN_A_FILTER_VAL);
+
+			debugPrintf("okunan eeprom degerleri:");
+			debugDumpHex32(buffer_to_read, 12);
+
+		}
+		else if (!strncmp("test2", uartRxData, 5))
+		{
+			uint32_t data[12] = {
+					0xFFFFFFFF,
+					0x44444444,
+					0x55555555,
+					0x66666666,
+					0x77777777,
+					0x88888888,
+					0x99999999,
+					0xEEEEEEEE,
+					0xDDDDDDDD,
+					0xCCCCCCCC,
+					0xBBBBBBBB,
+					0xAAAAAAAA
+			};
+
+			int sizeOfBuf = sizeof(data) / 4;
+
+			debugPrintf("crc si hesaplanacak buffer size: %d \n", sizeOfBuf);
+			debugPrintf("crc si hesaplanacak buffer daki veriler:  ");
+			debugDumpHex32(data, sizeOfBuf);
+
+			torkUInt64_VAL _CRC_;
+			_CRC_.Val = Calculate_Crc_64(data, sizeOfBuf);
+
+			debugPrintf("crc L: %u\n", _CRC_.U32[0]);
+			debugPrintf("crc H: %u\n", _CRC_.U32[1]);
+
+		}
+		else if (!strncmp("test3", uartRxData, 5))
+		{
+//			torkUInt32_VAL uint;
+//			uint.Val = 0x0A0B0C0D;
+//
+//			debugPrintf("degisken 'uintVal' adresi:  %u\n,  degeri:  0x0A0B0C0D\n", &uint.Val);
+//			debugPrintf("0. byte adresi: %u, degeri :%u\n", &(uint.Byte[0]), uint.Byte[0]);
+//			debugPrintf("1. byte adresi: %u, degeri :%u\n", &(uint.Byte[1]), uint.Byte[1]);
+//			debugPrintf("2. byte adresi: %u, degeri :%u\n", &(uint.Byte[2]), uint.Byte[2]);
+//			debugPrintf("3. byte adresi: %u, degeri :%u\n", &(uint.Byte[3]), uint.Byte[3]);
+
+
+//			torkUInt32_VAL uint[2];
+//			uint[0].Val = 0x08090A0B;
+//			uint[1].Val = 0x0C0D0E0F;
+//
+//			debugPrintf("degisken 'uintVal' adresi: %u, %u, %u\n", uint, &uint[0].Val, &uint[0]);
+//
+//			debugPrintf("adres: %u, degeri :%u\n", (((uint8_t*)uint)+ 0), *(((uint8_t*)uint)+ 0));
+//			debugPrintf("adres: %u, degeri :%u\n", (((uint8_t*)uint)+ 1), *(((uint8_t*)uint)+ 1) );
+//			debugPrintf("adres: %u, degeri :%u\n", (((uint8_t*)uint)+ 2), *(((uint8_t*)uint)+ 2) );
+//			debugPrintf("adres: %u, degeri :%u\n", (((uint8_t*)uint)+ 3), *(((uint8_t*)uint)+ 3) );
+//			debugPrintf("adres: %u, degeri :%u\n", (((uint8_t*)uint)+ 4), *(((uint8_t*)uint)+ 4) );
+//			debugPrintf("adres: %u, degeri :%u\n", (((uint8_t*)uint)+ 5), *(((uint8_t*)uint)+ 5) );
+//			debugPrintf("adres: %u, degeri :%u\n", (((uint8_t*)uint)+ 6), *(((uint8_t*)uint)+ 6) );
+//			debugPrintf("adres: %u, degeri :%u\n", (((uint8_t*)uint)+ 7), *(((uint8_t*)uint)+ 7) );
 
 		}
 

@@ -13,6 +13,10 @@
 #define MAX_CAN_MSG_DATA_COUNT          64
 #define CAN_MSG_DATA_SENDER_ADDR_INDEX  0
 #define CAN_MSG_DATA_TIMESTAMP_INDEX    2
+#define MAX_STD_FILTER_NUM              3
+#define MAX_EXT_FILTER_NUM              3
+
+
 
 #define CAN_OK              (0)
 #define CAN_FAILINIT        (1)

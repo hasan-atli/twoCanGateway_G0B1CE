@@ -64,9 +64,9 @@
 
 #define USBD_VID     1155
 #define USBD_LANGID_STRING     1033
-#define USBD_MANUFACTURER_STRING     "STMicroelectronics"
-#define USBD_PID     22336
-#define USBD_PRODUCT_STRING     "TORK ComPort"
+#define USBD_MANUFACTURER_STRING     "TORK ROBOTIK"
+#define USBD_PID     22337
+#define USBD_PRODUCT_STRING     "Two Can Gateway"
 #define USBD_CONFIGURATION_STRING     "CDC Config"
 #define USBD_INTERFACE_STRING     "CDC Interface"
 

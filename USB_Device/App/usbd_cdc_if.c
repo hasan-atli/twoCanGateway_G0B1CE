@@ -32,9 +32,13 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-extern uint8_t  rxBufferUSB[64];
-extern bool     isReceivedUSB;
-extern bool isTransmittedUsbData;
+extern char  rxBufferUSB[576];
+extern bool  isReceivedUSB;
+extern bool  isTransmittedUsbData;
+extern const char TERMINATOR_OF_MSG;
+
+int posOfMsgSec = 0;   /**position of message section
+                         CDC_Receive_FS fonksiyonu mesaj 64 bytedan büyük ise birden fazla kesmeye girer. Her kesme de bu degisken artılır **/
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -268,13 +272,77 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
   /*****************************************************************/
-  memset (rxBufferUSB, '\0', 64);  // clear the buffer
-  uint8_t len = (uint8_t)*Len;
-  memcpy(rxBufferUSB, Buf, len);  // copy the data to the buffer
-  memset(Buf, '\0', len);   // clear the Buf also
 
-  isReceivedUSB = true;
+	switch (posOfMsgSec)
+	{
+	case 0:
+		memcpy(rxBufferUSB, Buf, *Len);
+
+		*Len == 64 && Buf[*Len-1] != TERMINATOR_OF_MSG ? (posOfMsgSec++) : (posOfMsgSec = 0);
+		break;
+
+	case 1:
+		memcpy(rxBufferUSB + 64, Buf, *Len);
+
+		*Len == 64 && Buf[*Len] != TERMINATOR_OF_MSG ? (posOfMsgSec++) : (posOfMsgSec = 0);
+		break;
+
+	case 2:
+		memcpy(rxBufferUSB + 128, Buf, *Len);
+
+		*Len == 64 && Buf[*Len] != TERMINATOR_OF_MSG ? (posOfMsgSec++) : (posOfMsgSec = 0);
+		break;
+
+	case 3:
+		memcpy(rxBufferUSB + 192, Buf, *Len);
+
+		*Len == 64 && Buf[*Len] != TERMINATOR_OF_MSG ? (posOfMsgSec++) : (posOfMsgSec = 0);
+		break;
+
+	case 4:
+		memcpy(rxBufferUSB + 256, Buf, *Len);
+
+		*Len == 64 && Buf[*Len] != TERMINATOR_OF_MSG ? (posOfMsgSec++) : (posOfMsgSec = 0);
+		break;
+
+	case 5:
+		memcpy(rxBufferUSB + 320, Buf, *Len);
+
+		*Len == 64 && Buf[*Len] != TERMINATOR_OF_MSG ? (posOfMsgSec++) : (posOfMsgSec = 0);
+		break;
+
+	case 6:
+		memcpy(rxBufferUSB + 384, Buf, *Len);
+
+		*Len == 64 && Buf[*Len] != TERMINATOR_OF_MSG ? (posOfMsgSec++) : (posOfMsgSec = 0);
+		break;
+
+	case 7:
+		memcpy(rxBufferUSB + 448, Buf, *Len);
+
+		*Len == 64 && Buf[*Len] != TERMINATOR_OF_MSG ? (posOfMsgSec++) : (posOfMsgSec = 0);
+		break;
+
+	case 8:
+		memcpy(rxBufferUSB + 512, Buf, *Len);
+
+		*Len == 64 && Buf[*Len] != TERMINATOR_OF_MSG ? (posOfMsgSec++) : (posOfMsgSec = 0);
+		break;
+
+	default:
+		memcpy(rxBufferUSB, Buf, *Len);
+		posOfMsgSec = 0;
+		break;
+	}
+
+
+
+	if(posOfMsgSec == 0)
+	{
+		isReceivedUSB = true;
+	}
   /*****************************************************************/
+
 
   return (USBD_OK);
   /* USER CODE END 6 */

@@ -28,6 +28,7 @@ typedef unsigned char               torkUInt8_t;
 typedef uint8_t                     torkByte;
 typedef uint16_t                    torkUInt16_t;
 typedef uint32_t                    torkUInt32_t;
+typedef uint64_t                    torkUInt64_t;
 typedef int16_t                     torkInt16_t;
 typedef int32_t                     torkInt32_t;
 typedef uint16_t                    torkUInt16_t;
@@ -88,8 +89,8 @@ typedef union
 typedef union
 {
 	torkUInt32_t Val;
-	torkUInt16_t w[2];
-    torkByte     v[4];
+	torkUInt16_t U16[2];
+    torkByte     Byte[4];
     struct
     {
         torkByte b0:1;
@@ -127,6 +128,17 @@ typedef union
     }Bits;
 } torkUInt32_VAL;
 
+
+/**************************************************************************************************************/
+/*                                                                                                            */
+/**************************************************************************************************************/
+typedef union
+{
+	torkUInt64_t  Val;
+	torkUInt32_t  U32[2];
+	torkUInt16_t  U16[4];
+    torkByte      Byte[8];
+} torkUInt64_VAL;
 
 
 typedef union {

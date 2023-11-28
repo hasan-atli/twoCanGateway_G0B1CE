@@ -24,12 +24,15 @@
 #define debugPrint(...)           dbgPrint(__VA_ARGS__);
 #define debugByte(...)            dbgPrintByte(__VA_ARGS__);
 #define debugDumpHex(...)         dbgDumpHex(__VA_ARGS__);
+#define debugDumpHex32(...)       dbgDumpHex32(__VA_ARGS__);
+
 
 #else
 #define debugPrintf(...)
 #define debugPrint(...)
 #define debugByte(...)
 #define debugDumpHex(...)
+#define debugDumpHex32(...)
 #endif
 
 
@@ -37,5 +40,7 @@ void dbgPrintf(char *fmt, ...);
 void dbgPrint(char *str);
 void dbgPrintByte(uint8_t *p_array, uint8_t size);
 void dbgDumpHex(uint8_t *buffer, int bufferSize);
+void dbgDumpHex32(uint32_t *buffer, int bufferSize);
+
 
 #endif /* INC_DEBUG_H_ */
