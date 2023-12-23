@@ -37,6 +37,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define _1_SECOND 1000
+#define _200_MS   200
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -56,7 +57,10 @@ UART_HandleTypeDef huart1;
 
 /***************************************************************************************************/
 // for led blink
-uint32_t period_of_led_blink = _1_SECOND;
+const uint32_t led_program_mode = _200_MS;
+const uint32_t led_normal_mode  = _1_SECOND;
+
+uint32_t period_of_led_blink    = led_normal_mode;
 uint32_t last_time = 0;
 /***************************************************************************************************/
 

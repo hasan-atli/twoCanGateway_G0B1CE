@@ -38,14 +38,21 @@ bool    isTransmittedUsbData = false; // usb den veri tx tamamlandıgında kesme
 /**********************************************************/
 
 
+/**********************************************************/
+//for Led
+extern uint32_t period_of_led_blink;
+extern uint32_t led_program_mode;
+/**********************************************************/
+
+
 /**
  * can config ayarları
  * eepromdan okuduktan sonra atamaları yapılır
  * can config ayarlarını tutar, can1a ve canb init edilirken kullanılacaktır.
  */
 /**********************************************************/
-Can_Eeprom_Values_t canA_Values = {FDCAN_CLASSIC_CAN, CAN_NOBPS, CAN_NOBPS};
-Can_Eeprom_Values_t canB_Values = {FDCAN_CLASSIC_CAN, CAN_NOBPS, CAN_NOBPS};
+Can_Eeprom_Values_t canA_Values = {FDCAN_CLASSIC_CAN, 0, 0};
+Can_Eeprom_Values_t canB_Values = {FDCAN_CLASSIC_CAN, 0, 0};
 /**********************************************************/
 
 
@@ -496,7 +503,7 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 		hfdcan->Init.NominalTimeSeg2 = 2;
 		break;
 
-	case CAN_1000KBPS:
+	case CAN_1MBPS:
 		hfdcan->Init.NominalPrescaler = 1;
 		hfdcan->Init.NominalSyncJumpWidth = 2;
 		hfdcan->Init.NominalTimeSeg1 = 13;
@@ -588,7 +595,7 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 		hfdcan->Init.DataTimeSeg2 = 2;
 		break;
 
-	case CAN_1000KBPS:
+	case CAN_1MBPS:
 		hfdcan->Init.DataPrescaler = 1;
 		hfdcan->Init.DataSyncJumpWidth = 2;
 		hfdcan->Init.DataTimeSeg1 = 13;
@@ -614,6 +621,8 @@ void Handle_USB_Messages()
 		if (!strncmp(ARE_YOU_OK_MSG, rxBufferUSB, sizeof(ARE_YOU_OK_MSG)))
 		{
 			CDC_Transmit_FS((uint8_t*) OK_MSG, sizeof(OK_MSG));
+
+			period_of_led_blink             = led_program_mode;
 		}
 		else if (!strncmp(CAN_A_VAL_MSG, rxBufferUSB, sizeof(CAN_A_VAL_MSG)))
 		{
