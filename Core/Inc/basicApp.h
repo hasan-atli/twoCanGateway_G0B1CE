@@ -159,7 +159,9 @@ uint16_t Calculate_Crc_16(unsigned char *data, int length);
 uint32_t Calculate_Crc_32(uint32_t *data, int length);
 uint64_t Calculate_Crc_64(uint32_t *data, int length);
 
-
+int Return_Compile_Day();
+int Return_Compile_Month();
+int Return_Compile_Year();
 
 uint32_t Handle_ID_Before_Transmit(Can_Route_Values_t route, uint32_t Identifier, uint32_t IdType);
 uint32_t Handle_IdType_Before_Transmit(Can_Route_Values_t route, uint32_t IdType);

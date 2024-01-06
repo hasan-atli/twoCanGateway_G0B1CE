@@ -14,6 +14,14 @@
 #include "usbd_cdc_if.h"
 
 #include <string.h>
+
+/**********************************************************/
+// for Device Information
+const float hardwareVer  = 1.1;
+const float softwareVer  = 1.1;
+const char *compileDate  = __DATE__;
+/**********************************************************/
+
 /**********************************************************/
 // for EEPROM
 extern I2C_HandleTypeDef hi2c1;
@@ -41,7 +49,7 @@ bool    isTransmittedUsbData = false; // usb den veri tx tamamlandıgında kesme
 /**********************************************************/
 //for Led
 extern uint32_t period_of_led_blink;
-extern uint32_t led_program_mode;
+extern uint32_t last_time;
 /**********************************************************/
 
 
@@ -616,13 +624,59 @@ void Set_Stm_Can_Config(FDCAN_HandleTypeDef* hfdcan, uint32_t frameFormat, BITTI
 /*--------------------------------------------------------*/
 void Handle_USB_Messages()
 {
+	static bool isProgramMode = false;
+
 	if (isReceivedUSB == true)
 	{
-		if (!strncmp(ARE_YOU_OK_MSG, rxBufferUSB, sizeof(ARE_YOU_OK_MSG)))
+		if (!strncmp(START_PROG_MSG, rxBufferUSB, sizeof(START_PROG_MSG)))
 		{
-			CDC_Transmit_FS((uint8_t*) OK_MSG, sizeof(OK_MSG));
+			debugPrint("usb START_PROG_MSG\n");
 
-			period_of_led_blink             = led_program_mode;
+			isProgramMode = true;
+
+			// led in programming mode
+			period_of_led_blink = led_program_mode;
+			HAL_GPIO_WritePin(LED_A_GPIO_Port, LED_A_Pin, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(LED_BLINK_GPIO_Port, LED_BLINK_Pin, GPIO_PIN_SET);
+
+			// info mesajini gönder
+			uint8_t bufMsg[25];
+			sprintf(bufMsg, "$INFO,%.1f,%.1f,%d,%d,%d\n",hardwareVer, softwareVer, Return_Compile_Day(), Return_Compile_Month(), Return_Compile_Year());			//DC_Transmit_FS((uint8_t*) OK_MSG, sizeof(OK_MSG));
+			CDC_Transmit_FS((uint8_t*) bufMsg, sizeof(bufMsg));
+
+			isReceivedUSB = false;
+			while(isProgramMode)
+			{
+				/**
+				* LED
+				*/
+				/***************************************************************************************************/
+				if (HAL_GetTick() - last_time > period_of_led_blink)
+				{
+					last_time = HAL_GetTick();
+					HAL_GPIO_TogglePin(LED_BLINK_GPIO_Port, LED_BLINK_Pin);
+					HAL_GPIO_TogglePin(LED_A_GPIO_Port, LED_A_Pin);
+					HAL_GPIO_TogglePin(LED_B_GPIO_Port, LED_B_Pin);
+				}
+				/***************************************************************************************************/
+
+				/**
+				* USB communicaiton
+				*/
+			    /***************************************************************************************************/
+					Handle_USB_Messages();
+			    /***************************************************************************************************/
+
+			}
+		}
+		else if (!strncmp(FINISH_CONN_MSG, rxBufferUSB, sizeof(FINISH_CONN_MSG)))
+		{
+			debugPrint("usb FINISH_PROG_MSG\n");
+			period_of_led_blink = led_normal_mode;
+			HAL_GPIO_WritePin(LED_A_GPIO_Port, LED_A_Pin, GPIO_PIN_SET);
+			HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, GPIO_PIN_SET);
+			isProgramMode = false;
 		}
 		else if (!strncmp(CAN_A_VAL_MSG, rxBufferUSB, sizeof(CAN_A_VAL_MSG)))
 		{
@@ -671,7 +725,7 @@ void Handle_USB_Messages()
 
 			CDC_Transmit_FS((uint8_t*) OK_MSG, sizeof(OK_MSG));
 
-			while(isTransmittedUsbData == false)
+			while (isTransmittedUsbData == false)
 			{
 				HAL_GPIO_TogglePin(LED_BLINK_GPIO_Port, LED_BLINK_Pin);
 				HAL_GPIO_TogglePin(LED_A_GPIO_Port, LED_A_Pin);
@@ -687,6 +741,7 @@ void Handle_USB_Messages()
 				HAL_Delay(100);
 			}
 
+			HAL_Delay(1000);
 			HAL_NVIC_SystemReset();
 
 		}
@@ -1443,6 +1498,53 @@ int  Parse_32bit_Data_From_USB_Buffer(uint32_t* destinationBuf, char* usbBuf, in
 	return bufIndex-1;
 }
 
+
+int Return_Compile_Day()
+{
+	const char *compileDate = __DATE__;
+	char month[4];
+	int day, year;
+
+	sscanf(compileDate, "%s %d %d", month, &day, &year);
+
+	return day;
+}
+
+
+int Return_Compile_Month()
+{
+	const char *compileDate = __DATE__;
+	char month[4];
+	int day, year;
+
+	sscanf(compileDate, "%s %d %d", month, &day, &year);
+
+    if (strcmp(month, "Jan") == 0) return 1;
+    else if (strcmp(month, "Feb") == 0) return 2;
+    else if (strcmp(month, "Mar") == 0) return 3;
+    else if (strcmp(month, "Apr") == 0) return 4;
+    else if (strcmp(month, "May") == 0) return 5;
+    else if (strcmp(month, "Jun") == 0) return 6;
+    else if (strcmp(month, "Jul") == 0) return 7;
+    else if (strcmp(month, "Aug") == 0) return 8;
+    else if (strcmp(month, "Sep") == 0) return 9;
+    else if (strcmp(month, "Oct") == 0) return 10;
+    else if (strcmp(month, "Nov") == 0) return 11;
+    else if (strcmp(month, "Dec") == 0) return 12;
+    else return -1; // Hata durumu
+}
+
+
+int Return_Compile_Year()
+{
+	const char *compileDate = __DATE__;
+	char month[4];
+	int day, year;
+
+	sscanf(compileDate, "%s %d %d", month, &day, &year);
+
+	return year;
+}
 
 
 

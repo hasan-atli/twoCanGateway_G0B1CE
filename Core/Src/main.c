@@ -57,10 +57,7 @@ UART_HandleTypeDef huart1;
 
 /***************************************************************************************************/
 // for led blink
-const uint32_t led_program_mode = _200_MS;
-const uint32_t led_normal_mode  = _1_SECOND;
-
-uint32_t period_of_led_blink    = led_normal_mode;
+uint32_t period_of_led_blink  = led_normal_mode;
 uint32_t last_time = 0;
 /***************************************************************************************************/
 
@@ -114,8 +111,6 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C1_Init(void);
-//static void MX_FDCAN1_Init(void);
-//static void MX_FDCAN2_Init(void);
 /* USER CODE BEGIN PFP */
 void isPressedBtn();
 void heartBeat();
@@ -349,7 +344,7 @@ void MX_FDCAN1_Init(void)
   * @param None
   * @retval None
   */
-MX_FDCAN2_Init(void)
+void MX_FDCAN2_Init(void)
 {
 
   /* USER CODE BEGIN FDCAN2_Init 0 */
@@ -593,8 +588,8 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 	{
 		if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &bufRxHdr_A, tempCanMsg_A.Payload) == HAL_OK)
 		{
-			//dbgPrint("canA new RxFifo0 :"); dbgDumpHex(payloadRx_A, 8); dbgPrint("\n");
-			//dbgPrintf("RxHeader.Identifier: %x\n", bufRxHdr_A.Identifier);
+			debugPrint("canA new RxFifo0 :"); dbgDumpHex(tempCanMsg_A.Payload, 8); dbgPrint("\n");
+			debugPrintf("RxHeader.Identifier: %x\n", bufRxHdr_A.Identifier);
 
 			HAL_GPIO_WritePin(LED_A_GPIO_Port, LED_A_Pin,GPIO_PIN_SET);    //veri aldıgında ısıgı söndür
 
@@ -610,7 +605,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 
 			debugPrint("RX ->canA  ->route1\n");
 		}
-		//dbgPrint("ERROR: Fifo0Callback HAL_FDCAN_GetRxMessage\n");
+		//debugPrint("ERROR: Fifo0Callback HAL_FDCAN_GetRxMessage\n");
 		//Error_Handler();
 	}
 }
@@ -624,8 +619,8 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 	{
 		if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &bufRxHdr_B, tempCanMsg_B.Payload) == HAL_OK)
 		{
-			//dbgPrint("canB new RxFifo1 :"); dbgDumpHex(tempCanMsg_B.Payload, 8); dbgPrint("\n");
-			//dbgPrintf("RxHeader.Identifier: %x\n", bufRxHdr_B.Identifier);
+			debugPrint("canB new RxFifo1 :"); dbgDumpHex(tempCanMsg_B.Payload, 8); dbgPrint("\n");
+			debugPrintf("RxHeader.Identifier: %x\n", bufRxHdr_B.Identifier);
 
 			HAL_GPIO_WritePin(LED_A_GPIO_Port, LED_A_Pin,GPIO_PIN_SET);    //veri aldıgında ısıgı söndür
 
@@ -641,7 +636,7 @@ void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo1ITs)
 
 			debugPrint("RX, ->canB  ->route2\n");
 		}
-		//dbgPrint("ERROR: Fifo0Callback HAL_FDCAN_GetRxMessage\n");
+		//debugPrint("ERROR: Fifo0Callback HAL_FDCAN_GetRxMessage\n");
 		//Error_Handler();
 	}
 }
@@ -682,6 +677,26 @@ void handleReceivedDataFromUart()
 		if (!strncmp("classic_can", uartRxData, 3))
 		{
 			debugPrint("classic_can mesaji gonderiliyor...");
+
+			if (HAL_FDCAN_GetRxMessage(&hfdcan1, FDCAN_RX_FIFO0, &bufRxHdr_A, tempCanMsg_A.Payload) == HAL_OK)
+			{
+				debugPrint("canA new RxFifo0 :"); dbgDumpHex(tempCanMsg_A.Payload, 8); dbgPrint("\n");
+				debugPrintf("RxHeader.Identifier: %x\n", bufRxHdr_A.Identifier);
+
+				HAL_GPIO_WritePin(LED_A_GPIO_Port, LED_A_Pin,GPIO_PIN_SET);    //veri aldıgında ısıgı söndür
+
+				tempCanMsg_A.Identifier          = bufRxHdr_A.Identifier;
+				tempCanMsg_A.IdType              = bufRxHdr_A.IdType;
+				tempCanMsg_A.FrameType           = bufRxHdr_A.RxFrameType;
+				tempCanMsg_A.DataLength          = bufRxHdr_A.DataLength;
+				tempCanMsg_A.FDFormat            = bufRxHdr_A.FDFormat;
+			    tempCanMsg_A.ErrorStateIndicator = bufRxHdr_A.ErrorStateIndicator;
+				tempCanMsg_A.BitRateSwitch       = bufRxHdr_A.BitRateSwitch;
+
+				canMsgRingBufferPush(&routeOne.Route_Ring_Buf, tempCanMsg_A);
+
+				debugPrint("RX ->canA  ->route1\n");
+			}
 		}
 		else if(!strncmp("_canfd", uartRxData, 6))
 		{
@@ -805,21 +820,33 @@ void handleReceivedDataFromUart()
 
 			debugPrintf("\n\n\n");
 
-//			//route 1
-//			debugPrintf("routeOne.Is_Route_Enable: %d\n", routeOne.Is_Route_Enable);
-//			debugPrintf("routeOne.Can_A_ext_flg: %d\n", routeOne.Can_A_ext_flg);
-//			debugPrintf("routeOne.Can_A_id_mode: %d\n", routeOne.Can_A_id_mode);
-//
-//			debugPrintf("routeOne.Can_B_ext_flg: %d\n", routeOne.Can_B_ext_flg);
-//			debugPrintf("routeOne.Can_B_id_mode: %d\n", routeOne.Can_B_id_mode);
-//
-//			//route 2
-//			debugPrintf("routeTwo.Is_Route_Enable: %d\n", routeTwo.Is_Route_Enable);
-//			debugPrintf("routeTwo.Can_A_state: %d\n", routeTwo.Can_A_ext_flg);
-//			debugPrintf("routeTwo.Can_A_state: %d\n", routeTwo.Can_A_id_mode);
-//
-//			debugPrintf("routeTwo.Can_B_ext_flg: %d\n", routeTwo.Can_B_ext_flg);
-//			debugPrintf("routeTwo.Can_B_id_mode: %d\n", routeTwo.Can_B_id_mode);
+			//route 1
+			debugPrintf("routeOne.Is_Route_Enable: %d\n",                        routeOne.Is_Route_Enable);
+			debugPrintf("routeOne.First_Method_If_Received_Std_Id_Msg: %d\n",    routeOne.First_Method_If_Received_Std_Id_Msg);
+			debugPrintf("routeOne.First_Std_Auxiliary_Variable: %d\n",           routeOne.First_Std_Auxiliary_Variable);
+
+			debugPrintf("routeOne.First_Method_If_Received_Ext_Id_Msg: %d\n",    routeOne.First_Method_If_Received_Ext_Id_Msg);
+			debugPrintf("routeOne.First_Ext_Auxiliary_Variable: %d\n",           routeOne.First_Ext_Auxiliary_Variable);
+
+			debugPrintf("routeOne.Second_Method_If_Received_Std_Id_Msg: %d\n",   routeOne.Second_Method_If_Received_Std_Id_Msg);
+			debugPrintf("routeOne.Second_Std_Auxiliary_Variable: %d\n",          routeOne.Second_Std_Auxiliary_Variable);
+
+			debugPrintf("routeOne.Second_Method_If_Received_Ext_Id_Msg: %d\n",   routeOne.Second_Method_If_Received_Ext_Id_Msg);
+			debugPrintf("routeOne.Second_Ext_Auxiliary_Variable: %d\n",          routeOne.Second_Ext_Auxiliary_Variable);
+
+			//route 2
+			debugPrintf("routeTwo.Is_Route_Enable: %d\n",                        routeTwo.Is_Route_Enable);
+			debugPrintf("routeTwo.First_Method_If_Received_Std_Id_Msg: %d\n",    routeTwo.First_Method_If_Received_Std_Id_Msg);
+			debugPrintf("routeTwo.First_Std_Auxiliary_Variable: %d\n",           routeTwo.First_Std_Auxiliary_Variable);
+
+			debugPrintf("routeTwo.First_Method_If_Received_Ext_Id_Msg: %d\n",    routeTwo.First_Method_If_Received_Ext_Id_Msg);
+			debugPrintf("routeTwo.First_Ext_Auxiliary_Variable: %d\n",           routeTwo.First_Ext_Auxiliary_Variable);
+
+			debugPrintf("routeTwo.Second_Method_If_Received_Std_Id_Msg: %d\n",   routeTwo.Second_Method_If_Received_Std_Id_Msg);
+			debugPrintf("routeTwo.Second_Std_Auxiliary_Variable: %d\n",          routeTwo.Second_Std_Auxiliary_Variable);
+
+			debugPrintf("routeTwo.Second_Method_If_Received_Ext_Id_Msg: %d\n",   routeTwo.Second_Method_If_Received_Ext_Id_Msg);
+			debugPrintf("routeTwo.Second_Ext_Auxiliary_Variable: %d\n",          routeTwo.Second_Ext_Auxiliary_Variable);
 
 
 //			char* __rxBufferUSB = "$FLTRID,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,11844,1624*";
@@ -969,6 +996,16 @@ void handleReceivedDataFromUart()
 //			debugPrintf("adres: %u, degeri :%u\n", (((uint8_t*)uint)+ 5), *(((uint8_t*)uint)+ 5) );
 //			debugPrintf("adres: %u, degeri :%u\n", (((uint8_t*)uint)+ 6), *(((uint8_t*)uint)+ 6) );
 //			debugPrintf("adres: %u, degeri :%u\n", (((uint8_t*)uint)+ 7), *(((uint8_t*)uint)+ 7) );
+
+
+			const char compileTime[] = __TIME__;
+
+			debugPrint(__TIME__);
+
+			const char date[] = __DATE__;
+
+		    debugPrint(date);
+
 
 		}
 

@@ -68,7 +68,8 @@ void MX_FDCAN2_Init(void);
 #define LED_BLINK_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+#define led_program_mode  200
+#define led_normal_mode   1000
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
