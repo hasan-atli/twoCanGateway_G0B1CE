@@ -111,6 +111,8 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_I2C1_Init(void);
+//static void MX_FDCAN1_Init(void);
+//static void MX_FDCAN2_Init(void);
 /* USER CODE BEGIN PFP */
 void isPressedBtn();
 void heartBeat();
@@ -152,8 +154,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_I2C1_Init();
-  MX_FDCAN1_Init();
-  MX_FDCAN2_Init();
+//  MX_FDCAN1_Init();
+//  MX_FDCAN2_Init();
   MX_USB_Device_Init();
   /* USER CODE BEGIN 2 */
   /***************************************************************************************************/
@@ -313,21 +315,21 @@ void MX_FDCAN1_Init(void)
   /* USER CODE END FDCAN1_Init 1 */
   hfdcan1.Instance = FDCAN1;
   hfdcan1.Init.ClockDivider = FDCAN_CLOCK_DIV1;
-  hfdcan1.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
+//  hfdcan1.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
   hfdcan1.Init.Mode = FDCAN_MODE_NORMAL;
   hfdcan1.Init.AutoRetransmission = DISABLE;
   hfdcan1.Init.TransmitPause = DISABLE;
   hfdcan1.Init.ProtocolException = DISABLE;
-  hfdcan1.Init.NominalPrescaler = 1;
-  hfdcan1.Init.NominalSyncJumpWidth = 111;
-  hfdcan1.Init.NominalTimeSeg1 = 111;
-  hfdcan1.Init.NominalTimeSeg2 = 3;
-  hfdcan1.Init.DataPrescaler = 1;
-  hfdcan1.Init.DataSyncJumpWidth = 16;
-  hfdcan1.Init.DataTimeSeg1 = 27;
-  hfdcan1.Init.DataTimeSeg2 = 4;
-  hfdcan1.Init.StdFiltersNbr = 0;
-  hfdcan1.Init.ExtFiltersNbr = 0;
+//  hfdcan1.Init.NominalPrescaler = 1;
+//  hfdcan1.Init.NominalSyncJumpWidth = 3;
+//  hfdcan1.Init.NominalTimeSeg1 = 28;
+//  hfdcan1.Init.NominalTimeSeg2 = 3;
+//  hfdcan1.Init.DataPrescaler = 1;
+//  hfdcan1.Init.DataSyncJumpWidth = 4;
+//  hfdcan1.Init.DataTimeSeg1 = 27;
+//  hfdcan1.Init.DataTimeSeg2 = 4;
+//  hfdcan1.Init.StdFiltersNbr = 0;
+//  hfdcan1.Init.ExtFiltersNbr = 0;
   hfdcan1.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
   if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK)
   {
@@ -356,21 +358,21 @@ void MX_FDCAN2_Init(void)
   /* USER CODE END FDCAN2_Init 1 */
   hfdcan2.Instance = FDCAN2;
   hfdcan2.Init.ClockDivider = FDCAN_CLOCK_DIV1;
-  hfdcan2.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
+//  hfdcan2.Init.FrameFormat = FDCAN_FRAME_CLASSIC;
   hfdcan2.Init.Mode = FDCAN_MODE_NORMAL;
   hfdcan2.Init.AutoRetransmission = DISABLE;
   hfdcan2.Init.TransmitPause = DISABLE;
   hfdcan2.Init.ProtocolException = DISABLE;
-  hfdcan2.Init.NominalPrescaler = 1;
-  hfdcan2.Init.NominalSyncJumpWidth = 3;
-  hfdcan2.Init.NominalTimeSeg1 = 28;
-  hfdcan2.Init.NominalTimeSeg2 = 3;
-  hfdcan2.Init.DataPrescaler = 1;
-  hfdcan2.Init.DataSyncJumpWidth = 4;
-  hfdcan2.Init.DataTimeSeg1 = 27;
-  hfdcan2.Init.DataTimeSeg2 = 4;
-  hfdcan2.Init.StdFiltersNbr = 0;
-  hfdcan2.Init.ExtFiltersNbr = 0;
+//  hfdcan2.Init.NominalPrescaler = 1;
+//  hfdcan2.Init.NominalSyncJumpWidth = 3;
+//  hfdcan2.Init.NominalTimeSeg1 = 28;
+//  hfdcan2.Init.NominalTimeSeg2 = 3;
+//  hfdcan2.Init.DataPrescaler = 1;
+//  hfdcan2.Init.DataSyncJumpWidth = 4;
+//  hfdcan2.Init.DataTimeSeg1 = 27;
+//  hfdcan2.Init.DataTimeSeg2 = 4;
+//  hfdcan2.Init.StdFiltersNbr = 0;
+//  hfdcan2.Init.ExtFiltersNbr = 0;
   hfdcan2.Init.TxFifoQueueMode = FDCAN_TX_FIFO_OPERATION;
   if (HAL_FDCAN_Init(&hfdcan2) != HAL_OK)
   {
